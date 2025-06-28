@@ -1,0 +1,9 @@
+.empty-imputs-container {
+  height: 200px;
+}
+.empty-imputs-container .empty-doc-icon {
+  height: 70px;
+  width: 70px;
+  border-radius: 50%;
+  background-color: grey;
+}

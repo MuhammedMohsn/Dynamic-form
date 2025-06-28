@@ -67,8 +67,7 @@ font-weight:bolder
 }
 
 body {
-  background-color: #2a385c;
-  background-image: linear-gradient(320deg, hsl(215, 10%, 12%) 0% /* down */, hsl(215, 19%, 24%) /* up */ 100%);
+  background-color: white;
   font-family: var(--fonts-primary);
   font-size: 14px;
   margin: 0;
@@ -160,4 +159,16 @@ body {
 
 .item.dragging {
   background-color: pink;
+}
+.h-fit{
+  height: fit-content;
+}
+.w-fit{
+  width: fit-content;
+}
+.cursor-pointer{
+  cursor: pointer;
+}
+.outline-none{
+  outline: none;
 }
