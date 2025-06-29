@@ -100,14 +100,29 @@ function SelectInput({
               {" "}
               <div className="d-flex align-items-center justify-content-between">
                 <h3>{field?.label}</h3>
-                <div
-                  onClick={() => {
-                    handleDetermineSelectionType(field, field?.isMulti);
-                  }}
-                >
-                  {field?.isMulti
-                    ? "يمكنك اختيار اكثر من خيار"
-                    : "يمكنك اختيار خيار واحد"}
+                <div className="w-35 d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center justify-content-between">
+                    <span className="mx-2">يمكنك اختيار اكثر من خيار</span>
+                    <input
+                      type="radio"
+                      name={`${field.id}_isMulti`}
+                      onChange={() => {
+                        handleDetermineSelectionType(field, field?.isMulti);
+                      }}
+                      checked={field?.isMulti == true}
+                    />
+                  </div>
+                  <div className="d-flex align-items-center justify-content-between">
+                    <span className="mx-2">يمكنك اختيار خيار واحد</span>
+                    <input
+                      type="radio"
+                      name={`${field.id}_isMulti`}
+                      onChange={() => {
+                        handleDetermineSelectionType(field, field?.isMulti);
+                      }}
+                      checked={field?.isMulti == false}
+                    />
+                  </div>
                 </div>
               </div>
               <br />

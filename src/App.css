@@ -172,3 +172,15 @@ body {
 .outline-none{
   outline: none;
 }
+.w-30{
+  width: 30%;
+}
+.w-35{
+  width: 35%;
+}
+.w-40{
+  width: 40%;
+}
+.w-45{
+  width: 45;
+}
