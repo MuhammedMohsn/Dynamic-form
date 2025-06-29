@@ -7,7 +7,8 @@ import { SiGoogledocs } from "react-icons/si";
 import "../styles/admin-form-styles.css";
 import { toast } from "react-toastify";
 import SingleInput from "./Inputs/SingleInput";
-import RadioCheckboxInput from "./Inputs/RadioCheckboxInput"
+import RadioCheckboxInput from "./Inputs/RadioCheckboxInput";
+import SelectInput from "./Inputs/SelectInput";
 
 function FormInputsSection({ formFields, setFormFields }) {
   console.log("formFields", formFields);
@@ -197,6 +198,33 @@ function FormInputsSection({ formFields, setFormFields }) {
     });
     setFormFields(newFields);
   };
+  const handleSelectChange = (id, selectedOption, isMulti = false) => {
+    const newFields = formFields.map((field) => {
+      if (field.id === id) {
+        const value = isMulti
+          ? selectedOption?.map((opt) => opt.value) || []
+          : selectedOption?.value || "";
+
+        field.value = value;
+
+        setValue(id, value);
+        trigger(id);
+      }
+      return field;
+    });
+
+    setFormFields(newFields);
+  };
+  let handleDetermineSelectionType = (input, isMulti) => {
+    const newFields = formFields?.map((field) => {
+      if (field.id === input?.id) {
+        return { ...field, isMulti: !isMulti };
+      }
+      return field;
+    });
+    setFormFields(newFields);
+  };
+
   const handlelabelInputChange = (id, labelId, event) => {
     const { value } = event.target;
     const newFields = formFields?.map((field) => {
@@ -277,7 +305,70 @@ function FormInputsSection({ formFields, setFormFields }) {
       setFormFields(newFields);
     }
   };
+  const handleOptionChangeForSelect = (fieldId, optionId, type) => {
+    const newFields = formFields.map((field) => {
+      if (field.id === fieldId) {
+        if (type === "radio") {
+          field.options.forEach((option) => {
+            option.selected = option.id === optionId;
+          });
+          setValue(fieldId, optionId);
+          trigger(fieldId);
+        } else if (type === "checkbox") {
+          const optionIndex = field.options.findIndex(
+            (option) => option.id === optionId
+          );
+          if (optionIndex !== -1) {
+            field.options[optionIndex].selected =
+              !field.options[optionIndex].selected;
+          }
+
+          setValue(fieldId, optionId);
+          trigger(fieldId);
+        }
+      }
+      return field;
+    });
+    setFormFields(newFields);
+  };
+
+  const handleOptionLabelChangeForSelect = (fieldId, optionId, value) => {
+    const newFields = [...formFields];
+    const fieldIndex = newFields.findIndex((f) => f.id === fieldId);
+    const optionIndex = newFields[fieldIndex]?.options?.findIndex(
+      (o) => o.id === optionId
+    );
+    if (fieldIndex !== -1 && optionIndex !== -1) {
+      newFields[fieldIndex].options[optionIndex].label = value;
+      setValue(`${fieldId}_options_${optionId}`, value);
+      trigger(`${fieldId}_options_${optionId}`);
+      setFormFields(newFields);
+    }
+  };
   const handleRemoveCheckboxAndRadioOption = (fieldId, optionId, type) => {
+    const newFields = formFields.map((field) => {
+      if (field.id === fieldId && field.type === type) {
+        field.options = field.options.filter(
+          (option) => option.id !== optionId
+        );
+      }
+      return field;
+    });
+    unregister([fieldId, `${fieldId}_options_${optionId}`]);
+    trigger([fieldId, `${fieldId}_options_${optionId}`]);
+    setFormFields(newFields);
+    toast.error("تم حذف المدخل بنجاح", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
+  };
+  const handleRemoveSelectOption = (fieldId, optionId, type) => {
     const newFields = formFields.map((field) => {
       if (field.id === fieldId && field.type === type) {
         field.options = field.options.filter(
@@ -385,7 +476,24 @@ function FormInputsSection({ formFields, setFormFields }) {
                     ) : field?.type == "file" ? (
                       <></>
                     ) : field?.type == "select" ? (
-                      <></>
+                      <>
+                        {" "}
+                        <SelectInput
+                          {...{
+                            field,
+                            errors,
+                            handleRequiredChange,
+                            handleRemoveField,
+                            handlelabelInputChange,
+                            handleAddOption,
+                            handleRemoveSelectOption,
+                            handleOptionLabelChangeForSelect,
+                            handleOptionChangeForSelect,
+                            handleSelectChange,
+                            handleDetermineSelectionType
+                          }}
+                        />
+                      </>
                     ) : (
                       <></>
                     )}

@@ -59,7 +59,9 @@ function SelectInputSection({
         type: selectedType,
         value: "",
         options:
-          selectedType == "checkbox" || selectedType == "radio"
+          selectedType == "checkbox" ||
+          selectedType == "radio" ||
+          selectedType == "select"
             ? [
                 {
                   id: uuidv4(),
@@ -68,6 +70,9 @@ function SelectInputSection({
                 },
               ]
             : [],
+        ...(selectedType == "select" && {
+          isMulti: false,
+        }),
         required: false,
       });
       setFormFields(newFields);
