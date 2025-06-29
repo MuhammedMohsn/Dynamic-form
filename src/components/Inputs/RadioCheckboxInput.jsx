@@ -91,7 +91,7 @@ function RadioCheckboxInput({
               {" "}
               <h3>{field?.label}</h3>
               <br />
-              {field?.options?.map((option, index) => {
+              {field?.options?.map((option) => {
                 return (
                   <Fragment key={option.id}>
                     {" "}
@@ -118,8 +118,7 @@ function RadioCheckboxInput({
                           handleOptionLabelChangeForRadioAndCheckBoxes(
                             field.id,
                             option.id,
-                            e.target.value,
-                            index
+                            e.target.value
                           )
                         }
                         className="form-control mx-2 "
@@ -137,9 +136,22 @@ function RadioCheckboxInput({
                       />
                       <br />
                     </div>
+                    {errors[`${field.id}_options_${option.id}_label`] && (
+                      <p style={{ color: "red" }}>
+                        {
+                          errors[`${field.id}_options_${option.id}_label`]
+                            ?.message
+                        }
+                      </p>
+                    )}
                   </Fragment>
                 );
               })}
+              {errors[`${field.id}_options_count`] && (
+                <p style={{ color: "red" }}>
+                  {errors[`${field.id}_options_count`]?.message}
+                </p>
+              )}
               <div className="d-flex align-items-center justify-content-center w-100 my-3">
                 <button
                   type="button"

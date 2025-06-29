@@ -18,128 +18,32 @@ function FormInputsSection({ formFields, setFormFields }) {
     setValidationSchema(
       Yup.object().shape(
         formFields.reduce((schema, field) => {
-          schema[`${field.id}_${field?.labelId}_label`] = Yup.string().required(
-            `${field.label || "Field"} is required`
-          );
-          if (field?.required) {
-            if (field.type === "text" || field.type === "textarea") {
-              schema[field.id] = Yup.string()
-                .required(`${field.label || "Field"} is required`)
-                .max(
-                  50,
-                  `${field.label || "Field"} cannot exceed 50 characters`
-                );
-            } else if (field.type === "date") {
-              schema[field.id] = Yup.date()
-                .required(`${field.label || "Field"} is required`)
-                .typeError(`${field.label || "Field"} is required`)
-                .min(
-                  new Date(),
-                  `${field.label || "Field"} must be a future date`
-                );
-            } else if (field.type === "time") {
-              schema[field.id] = Yup.string()
-                .required(`${field.label || "Field"} is required`)
-                .test(
-                  "is-future-time",
-                  `${field.label || "Field"} must be a future time`,
-                  (value) => {
-                    const now = new Date();
-                    const selectedTime = new Date(`1970-01-01T${value}`);
-                    return selectedTime > now;
-                  }
-                );
-            } else if (field.type === "file") {
-              schema[field.id] = Yup.mixed()
-                .required(`${field.label || "Field"} is required`)
-                .test("fileType", "Unsupported File Format", (value) =>
-                  value
-                    ? ["image/png", "image/jpeg"].includes(value.type)
-                    : false
-                )
-                .test("fileSize", "File is too large", (value) =>
-                  value ? value.size <= 2000000 : false
-                );
-            } else if (field.type === "checkbox") {
-              schema[field.id] = Yup.string().required(
-                `you must select option`
-              );
-              field?.options?.forEach((option) => {
-                schema[`${field.id}_options_${option?.id}`] =
-                  Yup.string().required("Option label is required");
-              });
-            } else if (field.type === "radio") {
-              schema[field.id] = Yup.string().required(
-                `you must select option`
-              );
-              field?.options?.forEach((option) => {
-                schema[`${field.id}_options_${option?.id}`] =
-                  Yup.string().required("Option label is required");
-              });
-            }
-            if (field.type === "select") {
-              schema[field.id] = Yup.string().required(
-                `${field.label || "Field"} is required`
+          schema[`${field.id}_${field.labelId}_label`] = Yup.string()
+            .required("Field is required")
+            .max(50, "Field cannot exceed 50 characters");
+          if (["text"].includes(field.type)) {
+            schema[`${field.id}_value`] = Yup.string()
+              .nullable()
+              .notRequired()
+              .optional()
+              .max(50, "Field cannot exceed 50 characters");
+          }
+          if (["date", "time"].includes(field.type)) {
+            schema[`${field.id}_value`] = Yup.string()
+              .nullable()
+              .notRequired()
+              .optional();
+          }
+          if (["select", "checkbox", "radio"].includes(field.type)) {
+            if (!field.options || field.options.length < 2) {
+              schema[`${field.id}_options_count`] = Yup.string().required(
+                "You must add more than one option"
               );
             }
-          } else {
-            if (field.type === "text" || field.type === "textarea") {
-              schema[field.id] = Yup.string()
-                .notRequired()
-                .nullable()
-                .max(
-                  50,
-                  `${field.label || "Field"} cannot exceed 50 characters`
-                );
-            } else if (field.type === "date") {
-              schema[field.id] = Yup.date()
-                .notRequired()
-                .nullable()
-                .min(
-                  new Date(),
-                  `${field.label || "Field"} must be a future date`
-                );
-            } else if (field.type === "time") {
-              schema[field.id] = Yup.string()
-                .notRequired()
-                .nullable()
-                .test(
-                  "is-future-time",
-                  `${field.label || "Field"} must be a future time`,
-                  (value) => {
-                    const now = new Date();
-                    const selectedTime = new Date(`1970-01-01T${value}`);
-                    return selectedTime > now;
-                  }
-                );
-            } else if (field.type === "file") {
-              schema[field.id] = Yup.mixed()
-                .nullable()
-                .notRequired()
-                .test("fileType", "Unsupported File Format", (value) =>
-                  value
-                    ? ["image/png", "image/jpeg"].includes(value.type)
-                    : false
-                )
-                .test("fileSize", "File is too large", (value) =>
-                  value ? value.size <= 2000000 : false
-                );
-            } else if (field.type === "checkbox") {
-              schema[field.id] = Yup.string().notRequired().nullable();
-              field?.options?.forEach((option) => {
-                schema[`${field.id}_options_${option?.id}`] =
-                  Yup.string().required("Option label is required");
-              });
-            } else if (field.type === "radio") {
-              schema[field.id] = Yup.string().notRequired().nullable();
-              field?.options?.forEach((option) => {
-                schema[`${field.id}_options_${option?.id}`] =
-                  Yup.string().required("Option label is required");
-              });
-            }
-            if (field.type === "select") {
-              schema[field.id] = Yup.string().notRequired().nullable();
-            }
+            field.options?.forEach((option) => {
+              schema[`${field.id}_options_${option.id}_label`] =
+                Yup.string().required("Option label is required");
+            });
           }
 
           return schema;
@@ -149,15 +53,16 @@ function FormInputsSection({ formFields, setFormFields }) {
   }, [formFields]);
   const {
     handleSubmit,
-    unregister,
     watch,
-    trigger,
+    unregister,
     setValue,
+    trigger,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(validationSchema),
   });
   console.log("errors", errors);
+  console.log("values", watch());
   const handleInputChange = (id, event) => {
     const { value, type, files } = event.target;
     const newFields = formFields.map((field) => {
@@ -184,14 +89,10 @@ function FormInputsSection({ formFields, setFormFields }) {
               }
               return f;
             });
-            setValue(id, file);
-            trigger(id);
             setFormFields(updatedFields);
           };
         } else {
           field.value = value;
-          setValue(id, value);
-          trigger(id);
         }
       }
       return field;
@@ -206,9 +107,6 @@ function FormInputsSection({ formFields, setFormFields }) {
           : selectedOption?.value || "";
 
         field.value = value;
-
-        setValue(id, value);
-        trigger(id);
       }
       return field;
     });
@@ -244,9 +142,7 @@ function FormInputsSection({ formFields, setFormFields }) {
   };
   const handleRemoveField = (id) => {
     const newFields = formFields.filter((field) => field.id !== id);
-
-    unregister(id);
-    trigger(id);
+    unregister();
     setFormFields(newFields);
     toast.error("تم حذف المدخل بنجاح", {
       position: "bottom-right",
@@ -267,8 +163,6 @@ function FormInputsSection({ formFields, setFormFields }) {
           field.options.forEach((option) => {
             option.selected = option.id === optionId;
           });
-          setValue(fieldId, optionId);
-          trigger(fieldId);
         } else if (type === "checkbox") {
           const optionIndex = field.options.findIndex(
             (option) => option.id === optionId
@@ -277,9 +171,6 @@ function FormInputsSection({ formFields, setFormFields }) {
             field.options[optionIndex].selected =
               !field.options[optionIndex].selected;
           }
-
-          setValue(fieldId, optionId);
-          trigger(fieldId);
         }
       }
       return field;
@@ -290,8 +181,7 @@ function FormInputsSection({ formFields, setFormFields }) {
   const handleOptionLabelChangeForRadioAndCheckBoxes = (
     fieldId,
     optionId,
-    value,
-    index
+    value
   ) => {
     const newFields = [...formFields];
     const fieldIndex = newFields.findIndex((f) => f.id === fieldId);
@@ -300,8 +190,8 @@ function FormInputsSection({ formFields, setFormFields }) {
     );
     if (fieldIndex !== -1 && optionIndex !== -1) {
       newFields[fieldIndex].options[optionIndex].label = value;
-      setValue(`${fieldId}_options_${optionId}`, value);
-      trigger(`${fieldId}_options_${optionId}`);
+      setValue(`${fieldId}_options_${optionId}_label`, value);
+      trigger(`${fieldId}_options_${optionId}_label`);
       setFormFields(newFields);
     }
   };
@@ -312,8 +202,6 @@ function FormInputsSection({ formFields, setFormFields }) {
           field.options.forEach((option) => {
             option.selected = option.id === optionId;
           });
-          setValue(fieldId, optionId);
-          trigger(fieldId);
         } else if (type === "checkbox") {
           const optionIndex = field.options.findIndex(
             (option) => option.id === optionId
@@ -322,9 +210,6 @@ function FormInputsSection({ formFields, setFormFields }) {
             field.options[optionIndex].selected =
               !field.options[optionIndex].selected;
           }
-
-          setValue(fieldId, optionId);
-          trigger(fieldId);
         }
       }
       return field;
@@ -340,8 +225,8 @@ function FormInputsSection({ formFields, setFormFields }) {
     );
     if (fieldIndex !== -1 && optionIndex !== -1) {
       newFields[fieldIndex].options[optionIndex].label = value;
-      setValue(`${fieldId}_options_${optionId}`, value);
-      trigger(`${fieldId}_options_${optionId}`);
+      setValue(`${fieldId}_options_${optionId}_label`, value);
+      trigger(`${fieldId}_options_${optionId}_label`);
       setFormFields(newFields);
     }
   };
@@ -354,9 +239,8 @@ function FormInputsSection({ formFields, setFormFields }) {
       }
       return field;
     });
-    unregister([fieldId, `${fieldId}_options_${optionId}`]);
-    trigger([fieldId, `${fieldId}_options_${optionId}`]);
     setFormFields(newFields);
+    trigger(`${fieldId}_options_count`);
     toast.error("تم حذف المدخل بنجاح", {
       position: "bottom-right",
       autoClose: 5000,
@@ -377,9 +261,8 @@ function FormInputsSection({ formFields, setFormFields }) {
       }
       return field;
     });
-    unregister([fieldId, `${fieldId}_options_${optionId}`]);
-    trigger([fieldId, `${fieldId}_options_${optionId}`]);
     setFormFields(newFields);
+    trigger(`${fieldId}_options_count`);
     toast.error("تم حذف المدخل بنجاح", {
       position: "bottom-right",
       autoClose: 5000,
@@ -401,6 +284,8 @@ function FormInputsSection({ formFields, setFormFields }) {
         selected: false,
       });
     }
+    setValue(`${field?.id}_options_count`, selectedField.options?.length);
+    trigger(`${field?.id}_options_count`);
     setFormFields(newFields);
   };
   const base64ToBlob = (base64, contentType = "", sliceSize = 512) => {
@@ -420,6 +305,7 @@ function FormInputsSection({ formFields, setFormFields }) {
   };
   let onSubmit = () => {
     console.log("data", watch());
+    localStorage.setItem("inputs", JSON.stringify(formFields));
   };
   const handleRequiredChange = (id, event) => {
     const { checked } = event.target;
@@ -427,9 +313,6 @@ function FormInputsSection({ formFields, setFormFields }) {
       field.id === id ? { ...field, required: checked } : field
     );
     setFormFields(updatedFields);
-    setTimeout(() => {
-      trigger(id);
-    }, 100);
   };
   return (
     <>
@@ -439,7 +322,7 @@ function FormInputsSection({ formFields, setFormFields }) {
           <>
             {" "}
             <form onSubmit={handleSubmit(onSubmit)}>
-              {formFields?.map((field, index) => {
+              {formFields?.map((field) => {
                 return (
                   <>
                     {field?.type == "text" ||
@@ -490,7 +373,7 @@ function FormInputsSection({ formFields, setFormFields }) {
                             handleOptionLabelChangeForSelect,
                             handleOptionChangeForSelect,
                             handleSelectChange,
-                            handleDetermineSelectionType
+                            handleDetermineSelectionType,
                           }}
                         />
                       </>
@@ -500,7 +383,14 @@ function FormInputsSection({ formFields, setFormFields }) {
                   </>
                 );
               })}
-              <button type="submit">submit</button>
+              <div className="d-flex align-items-center justify-content-center w-100 my-3">
+                <button
+                  type="submit"
+                  className="bg-primary outline-none border-0"
+                >
+                  submit
+                </button>
+              </div>
             </form>
           </>
         ) : (

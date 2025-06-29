@@ -168,9 +168,22 @@ function SelectInput({
                       />
                       <br />
                     </div>
+                    {errors[`${field.id}_options_${option.id}_label`] && (
+                      <p style={{ color: "red" }}>
+                        {
+                          errors[`${field.id}_options_${option.id}_label`]
+                            ?.message
+                        }
+                      </p>
+                    )}
                   </Fragment>
                 );
               })}
+              {errors[`${field.id}_options_count`] && (
+                <p style={{ color: "red" }}>
+                  {errors[`${field.id}_options_count`]?.message}
+                </p>
+              )}
               <div className="d-flex align-items-center justify-content-center w-100 my-3">
                 <button
                   type="button"
