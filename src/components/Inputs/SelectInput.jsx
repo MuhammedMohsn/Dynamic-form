@@ -159,11 +159,7 @@ function SelectInput({
                       <MdDelete
                         className="text-danger cursor-pointer fs-4"
                         onClick={() => {
-                          handleRemoveSelectOption(
-                            field.id,
-                            option.id,
-                            field?.type
-                          );
+                          handleRemoveSelectOption(field.id, option.id);
                         }}
                       />
                       <br />

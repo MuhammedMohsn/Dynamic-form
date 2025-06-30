@@ -17,6 +17,9 @@ function SelectInputSection({
   setSelectedType,
   formFields,
   setFormFields,
+  setValue,
+  trigger,
+  watch,
 }) {
   const inputTypes = [
     { value: "text", label: "Text", icon: <FaFont className="mx-2" /> },
@@ -52,10 +55,13 @@ function SelectInputSection({
   const handleAddField = () => {
     if (selectedType) {
       const newFields = [...formFields];
+      let newId = uuidv4();
+      let newLabelId = uuidv4();
+      let newOptionId = uuidv4();
       newFields.push({
-        id: uuidv4(),
+        id: newId,
         label: "",
-        labelId: uuidv4(),
+        labelId: newLabelId,
         type: selectedType,
         value: "",
         options:
@@ -64,7 +70,7 @@ function SelectInputSection({
           selectedType == "select"
             ? [
                 {
-                  id: uuidv4(),
+                  id: newOptionId,
                   label: "",
                   selected: false,
                 },
@@ -75,6 +81,31 @@ function SelectInputSection({
         }),
         required: false,
       });
+      setValue(newId, newId);
+      setValue(`${newId}_value`, "");
+      if (
+        selectedType == "checkbox" ||
+        selectedType == "radio" ||
+        selectedType == "select"
+      ) {
+        const options = watch(`${newId}_options`) || [];
+        let allOptions = [
+          ...options,
+          {
+            id: newOptionId,
+            label: "",
+            selected: false,
+          },
+        ];
+        setValue(`${newId}_options`, allOptions);
+        setValue(`${newId}_options_count`, allOptions?.length);
+      } else {
+        setValue(`${newId}_options`, []);
+        setValue(`${newId}_options_count`, 0);
+      }
+      setValue(`${newId}_${newLabelId}`, newLabelId);
+      setValue(`${newId}_${newLabelId}_label`, "");
+      setValue(`${newId}_required`, false);
       setFormFields(newFields);
       toast.success("تم اضافه المدخل بنجاح", {
         position: "bottom-right",
