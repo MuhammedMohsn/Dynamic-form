@@ -18,7 +18,6 @@ function FormInputsSection({
   errors,
 }) {
   console.log("formFields", formFields);
-  // Dynamic validation schema generation
   const handleInputChange = (id, event) => {
     const { value, type, files } = event.target;
     const newFields = formFields.map((field) => {
@@ -49,8 +48,6 @@ function FormInputsSection({
           };
         } else {
           field.value = value;
-          setValue(`${field.id}_value`, value);
-          trigger(`${field.id}_value`);
         }
       }
       return field;
@@ -65,8 +62,6 @@ function FormInputsSection({
           : selectedOption?.value || "";
 
         field.value = value;
-        setValue(`${field.id}_value`, value);
-        trigger(`${field.id}_value`);
       }
       return field;
     });
@@ -97,21 +92,9 @@ function FormInputsSection({
       return field;
     });
     setFormFields(newFields);
-    setValue(`${id}_${labelId}_label`, value);
-    trigger(`${id}_${labelId}_label`);
   };
   const handleRemoveField = (id) => {
-    let deletedField = formFields?.find((input) => {
-      return input?.id == id;
-    });
     const newFields = formFields.filter((field) => field.id !== id);
-    unregister(id);
-    unregister(`${id}_value`);
-    unregister(`${id}_${deletedField?.labelId}_label`);
-    unregister(`${id}_${deletedField?.labelId}`);
-    unregister(`${id}_options_count`);
-    unregister(`${id}_options`);
-    unregister(`${id}_required`);
     setFormFields(newFields);
     toast.error("تم حذف المدخل بنجاح", {
       position: "bottom-right",
@@ -136,8 +119,6 @@ function FormInputsSection({
           ...option,
           selected: option.id === optionId,
         }));
-        setValue(`${field?.id}_value`, optionId);
-        trigger(`${field?.id}_value`);
         return {
           ...field,
           options: updatedOptions,
@@ -155,8 +136,6 @@ function FormInputsSection({
         const selectedIds = updatedOptions
           .filter((opt) => opt.selected)
           .map((opt) => opt.id);
-        setValue(`${field?.id}_value`, JSON.stringify(selectedIds));
-        trigger(`${field?.id}_value`);
         return {
           ...field,
           options: updatedOptions,
@@ -182,8 +161,6 @@ function FormInputsSection({
     );
     if (fieldIndex !== -1 && optionIndex !== -1) {
       newFields[fieldIndex].options[optionIndex].label = value;
-      setValue(`${fieldId}_options_${optionId}_label`, value);
-      trigger(`${fieldId}_options_${optionId}_label`);
       setFormFields(newFields);
     }
   };
@@ -196,8 +173,6 @@ function FormInputsSection({
     );
     if (fieldIndex !== -1 && optionIndex !== -1) {
       newFields[fieldIndex].options[optionIndex].label = value;
-      setValue(`${fieldId}_options_${optionId}_label`, value);
-      trigger(`${fieldId}_options_${optionId}_label`);
       setFormFields(newFields);
     }
   };
@@ -211,21 +186,6 @@ function FormInputsSection({
       return field;
     });
     setFormFields(newFields);
-    let fieldOptions = formFields
-      ?.find((field) => {
-        return field?.id == fieldId;
-      })
-      ?.options?.filter((option) => {
-        return option?.id != optionId;
-      });
-    unregister(`${fieldId}_options_${optionId}_label`);
-    setValue(`${fieldId}_options`, fieldOptions);
-    setValue(`${fieldId}_options_count`, fieldOptions?.length);
-    trigger([
-      `${fieldId}_options`,
-      `${fieldId}_options_count`,
-      `${fieldId}_options_${optionId}_label`,
-    ]);
     toast.error("تم حذف المدخل بنجاح", {
       position: "bottom-right",
       autoClose: 5000,
@@ -247,14 +207,6 @@ function FormInputsSection({
       return field;
     });
     setFormFields(newFields);
-    setValue(
-      `${fieldId}_options`,
-      watch(`${fieldId}_options`)?.filter((option) => {
-        return option?.id != optionId;
-      })
-    );
-    setValue(`${fieldId}_options_count`, watch(`${fieldId}_options_count`) - 1);
-    trigger([`${fieldId}_options`, `${fieldId}_options_count`]);
     toast.error("تم حذف المدخل بنجاح", {
       position: "bottom-right",
       autoClose: 5000,
@@ -276,19 +228,7 @@ function FormInputsSection({
         label: "",
         selected: false,
       });
-      const options = watch(`${field.id}_options`) || [];
-      let allOptions = [
-        ...options,
-        {
-          id: newId,
-          label: "",
-          selected: false,
-        },
-      ];
-      setValue(`${field?.id}_options`, allOptions);
-      setValue(`${field?.id}_options_count`, allOptions?.length);
     }
-    trigger([`${field?.id}_options_count`, `${field?.id}_options`]);
     setFormFields(newFields);
   };
   const base64ToBlob = (base64, contentType = "", sliceSize = 512) => {

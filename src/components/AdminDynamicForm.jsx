@@ -43,7 +43,6 @@ const AdminDynamicForm = ({
           if (["select", "checkbox", "radio"].includes(field.type)) {
             console.log("length",field.options.length)
             if (field.options.length < 2) {
-              debugger
               schema[`${field.id}_options_count`] = Yup.string().required(
                 "You must add more than one option"
               );
@@ -53,8 +52,6 @@ const AdminDynamicForm = ({
                 Yup.string().required("Option label is required");
             });
           }
-          console.log("schema",schema)
-
           return schema;
         }, {})
       )
