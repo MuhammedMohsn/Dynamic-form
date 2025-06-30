@@ -20,9 +20,16 @@ const AdminDynamicForm = ({
             .notRequired()
             .optional()
             .nullable();
-          schema[`${field.id}_${field.labelId}_label`] = Yup.string()
-            .required("Field is required")
-            .max(50, "Field cannot exceed 50 characters");
+          if (field.label == "") {
+            schema[`${field.id}_${field.labelId}_label`] = Yup.string()
+              .required("Field is required")
+              .max(50, "Field cannot exceed 50 characters");
+          } else {
+            schema[`${field.id}_${field.labelId}_label`] = Yup.string()
+              .notRequired()
+              .optional()
+              .nullable();
+          }
           schema[`${field.id}`] = Yup.string()
             .notRequired()
             .optional()
@@ -41,15 +48,26 @@ const AdminDynamicForm = ({
               .optional();
           }
           if (["select", "checkbox", "radio"].includes(field.type)) {
-            console.log("length",field.options.length)
             if (field.options.length < 2) {
-              schema[`${field.id}_options_count`] = Yup.string().required(
-                "You must add more than one option"
-              );
+              schema[`${field.id}_options_count`] = Yup.number()
+                .required("You must add more than one option")
+                .min(2, "You must add more than one option");
+            } else {
+              schema[`${field.id}_options_count`] = Yup.number()
+                .notRequired()
+                .optional()
+                .nullable();
             }
             field.options?.forEach((option) => {
-              schema[`${field.id}_options_${option.id}_label`] =
-                Yup.string().required("Option label is required");
+              if (option.label == "") {
+                schema[`${field.id}_options_${option.id}_label`] =
+                  Yup.string().required("Option label is required");
+              } else {
+                schema[`${field.id}_options_${option.id}_label`] = Yup.string()
+                  .notRequired()
+                  .optional()
+                  .nullable();
+              }
             });
           }
           return schema;
@@ -57,7 +75,11 @@ const AdminDynamicForm = ({
       )
     );
   }, [formFields]);
-  // console.log("schema",validationSchema)
+  useEffect(() => {
+    if (JSON.stringify({}) != JSON.stringify(validationSchema)) {
+      trigger();
+    }
+  }, [validationSchema]);
   const {
     handleSubmit,
     watch,
@@ -88,7 +110,7 @@ const AdminDynamicForm = ({
             setSelectedType,
             setValue,
             trigger,
-            watch
+            watch,
           }}
         />
         <FormInputsSection
