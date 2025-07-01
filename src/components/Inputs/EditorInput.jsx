@@ -1,20 +1,19 @@
 import React, { useState } from "react";
 import { MdDelete } from "react-icons/md";
-import { FaFont, FaCalendarAlt, FaClock } from "react-icons/fa";
-function SingleInput({
+import { FaEdit } from "react-icons/fa";
+import QuillEditorInput from "./QuillEditorInput";
+function EditorInput({
   field,
   errors,
   handleRequiredChange,
   handleRemoveField,
-  handleInputChange,
+  handleTextEditorChange,
   handlelabelInputChange,
-  readOnly
+  readOnly,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
-    text: <FaFont className="mx-2 fs-4" />,
-    date: <FaCalendarAlt className="mx-2 fs-4" />,
-    time: <FaClock className="mx-2 fs-4" />,
+    editor: <FaEdit className="mx-2 fs-4" />,
   };
   return (
     <>
@@ -91,16 +90,13 @@ function SingleInput({
               {" "}
               <h3>{field?.label}</h3>
               <br />
-              <input
-                type={field?.type}
-                name={`${field?.type}_${field?.id}`}
-                id={field?.id}
-                onChange={(e) => handleInputChange(field.id, e)}
+              <QuillEditorInput
                 value={field?.value}
-                placeholder={`Enter ${field?.label}`}
-                className="form-control w-50"
+                onChange={(newValue) =>
+                  handleTextEditorChange(field?.id, newValue)
+                }
+                label={field?.label}
                 readOnly={readOnly}
-                disabled={readOnly}
               />
               <br />
               {errors[field.id] && (
@@ -114,4 +110,4 @@ function SingleInput({
   );
 }
 
-export default SingleInput;
+export default EditorInput;

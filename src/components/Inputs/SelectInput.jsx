@@ -13,6 +13,7 @@ function SelectInput({
   handleOptionLabelChangeForSelect,
   handleSelectChange,
   handleDetermineSelectionType,
+  readOnly
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
@@ -134,6 +135,8 @@ function SelectInput({
                 // isDisabled={true}
                 isClearable={true}
                 isMulti={field?.isMulti}
+                readOnly={readOnly}
+                disabled={readOnly}
               />
               <br />
               {field?.options?.map((option, index) => {

@@ -11,6 +11,7 @@ function RadioCheckboxInput({
   handleRemoveCheckboxAndRadioOption,
   handleOptionLabelChangeForRadioAndCheckBoxes,
   handleOptionChangeForRadioAndCheckBoxes,
+  readOnly
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
@@ -76,7 +77,8 @@ function RadioCheckboxInput({
             }
             value={field?.label}
             id={field?.labelId}
-            className="form-control w-25"
+            name={`label_${field?.labelId}`}
+            className="form-control w-50"
           />
           <br />
           {errors[`${field.id}_${field?.labelId}_label`] && (
@@ -99,9 +101,10 @@ function RadioCheckboxInput({
                       {" "}
                       <input
                         type={field?.type}
-                        name={`${field.id}`}
-                        readOnly
-                        disabled
+                        name={`${field?.type}_${field.id}`}
+                        id={field?.id}
+                        readOnly={readOnly}
+                         disabled={readOnly}
                         onChange={(e) =>
                           handleOptionChangeForRadioAndCheckBoxes(
                             field.id,
@@ -121,6 +124,7 @@ function RadioCheckboxInput({
                             e.target.value
                           )
                         }
+                        id={option?.id}
                         className="form-control mx-2 "
                         placeholder="option label"
                       />

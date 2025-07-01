@@ -1,16 +1,10 @@
-import SelectInputSection from "./SelectInputSection";
 import { ToastContainer } from "react-toastify";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
-import FormInputsSection from "./FormInputsSection"
-const AdminDynamicForm = ({
-  selectedType,
-  setSelectedType,
-  formFields,
-  setFormFields,
-}) => {
+import FormInputsSection from "./FormInputsSection";
+const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
   let [validationSchema, setValidationSchema] = useState({});
   useEffect(() => {
     setValidationSchema(
@@ -38,8 +32,8 @@ const AdminDynamicForm = ({
             schema[`${field.id}_value`] = Yup.string()
               .nullable()
               .notRequired()
-              .optional()
-              // .max(50, "Field cannot exceed 50 characters");
+              .optional();
+            // .max(50, "Field cannot exceed 50 characters");
           }
           if (["date", "time"].includes(field.type)) {
             schema[`${field.id}_value`] = Yup.string()
@@ -97,22 +91,8 @@ const AdminDynamicForm = ({
       <div className="container">
         {" "}
         <h1 className="d-flex align-items-center justify-content-center text-primary mt-4">
-          Dynamic Form Builder
+          Please answer the following questions
         </h1>
-        <h3 className="d-flex align-items-center justify-content-center text-muted mt-2">
-          Create beautiful, responsive forms with ease
-        </h3>
-        <SelectInputSection
-          {...{
-            selectedType,
-            setFormFields,
-            formFields,
-            setSelectedType,
-            setValue,
-            trigger,
-            watch,
-          }}
-        />
         <FormInputsSection
           {...{
             setFormFields,
@@ -131,4 +111,4 @@ const AdminDynamicForm = ({
   );
 };
 
-export default AdminDynamicForm;
+export default UserAnswersDynamicForm;

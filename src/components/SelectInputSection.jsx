@@ -11,6 +11,7 @@ import {
   FaClock,
   FaFileUpload,
   FaCaretDown,
+  FaEdit,
 } from "react-icons/fa";
 function SelectInputSection({
   selectedType,
@@ -28,6 +29,12 @@ function SelectInputSection({
       label: "TextArea",
       icon: <FaListUl className="mx-2" />,
     },
+    {
+      value: "editor",
+      label: "Text Editor",
+      icon: <FaEdit className="mx-2" />,
+    },
+
     { value: "radio", label: "Radio", icon: <FaDotCircle className="mx-2" /> },
     {
       value: "checkbox",

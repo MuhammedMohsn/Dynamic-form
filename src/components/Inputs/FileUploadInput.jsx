@@ -1,21 +1,23 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { MdDelete } from "react-icons/md";
-import { FaFont, FaCalendarAlt, FaClock } from "react-icons/fa";
-function SingleInput({
+import { FaFileUpload } from "react-icons/fa";
+import { FaDownload } from "react-icons/fa6";
+
+function FileUploadInput({
   field,
   errors,
   handleRequiredChange,
   handleRemoveField,
   handleInputChange,
   handlelabelInputChange,
+  handleDeleteFileForField,
   readOnly
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
-    text: <FaFont className="mx-2 fs-4" />,
-    date: <FaCalendarAlt className="mx-2 fs-4" />,
-    time: <FaClock className="mx-2 fs-4" />,
+    file: <FaFileUpload className="mx-2 fs-4" />,
   };
+  let inputFileRef = useRef();
   return (
     <>
       <div
@@ -91,14 +93,24 @@ function SingleInput({
               {" "}
               <h3>{field?.label}</h3>
               <br />
+              <div
+                className="cursor-pointer file-upload-container d-flex flex-column align-items-center justify-content-center mx-auto p-4"
+                onClick={() => {
+                  inputFileRef?.current?.click();
+                }}
+              >
+                <FaFileUpload className="text-muted fs-3" />
+                <span className="text-muted fs-4"> Click to upload</span>
+                <span className="text-muted fs-6">max 10G</span>
+              </div>
               <input
                 type={field?.type}
+                ref={inputFileRef}
+                className="d-none"
                 name={`${field?.type}_${field?.id}`}
                 id={field?.id}
                 onChange={(e) => handleInputChange(field.id, e)}
-                value={field?.value}
-                placeholder={`Enter ${field?.label}`}
-                className="form-control w-50"
+                multiple
                 readOnly={readOnly}
                 disabled={readOnly}
               />
@@ -106,6 +118,38 @@ function SingleInput({
               {errors[field.id] && (
                 <p style={{ color: "red" }}>{errors[field.id]?.message}</p>
               )}
+              {Array.isArray(field?.value) &&
+                field?.value?.map((file) => {
+                  return (
+                    <div
+                      key={file?.id}
+                      className="attachment-container mx-auto px-3 d-flex align-items-center justify-content-between my-3 bg-success-light"
+                    >
+                      <div className="attachment-name-container w-50">
+                        <span>{file?.name}</span>
+                        <span className="mx-2">{file?.size}</span>
+                      </div>
+                      <div className="attachment-actions d-flex align-items-center w-25 justify-content-end">
+                        <MdDelete
+                          className="text-danger cursor-pointer fs-4 mx-4"
+                          onClick={() => {
+                            handleDeleteFileForField(field?.id, file?.id);
+                          }}
+                        />
+                        <a
+                          href={
+                            file?.fileAsBinary
+                              ? URL.createObjectURL(file?.fileAsBinary)
+                              : ""
+                          }
+                          download={file?.name}
+                        >
+                          <FaDownload className="text-primary cursor-pointer fs-4" />
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           </>
         )}
@@ -114,4 +158,4 @@ function SingleInput({
   );
 }
 
-export default SingleInput;
+export default FileUploadInput;

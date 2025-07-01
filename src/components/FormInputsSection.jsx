@@ -5,8 +5,12 @@ import { toast } from "react-toastify";
 import SingleInput from "./Inputs/SingleInput";
 import RadioCheckboxInput from "./Inputs/RadioCheckboxInput";
 import SelectInput from "./Inputs/SelectInput";
-import { Fragment } from "react";
-
+import { Fragment, useCallback } from "react";
+import FileUploadInput from "./Inputs/FileUploadInput";
+import TextAreaInput from "./Inputs/TextAreaInput";
+import EditorInput from "./Inputs/EditorInput";
+import showAlert from "../functions/showAlert";
+import { useNavigate } from "react-router-dom";
 function FormInputsSection({
   formFields,
   setFormFields,
@@ -20,40 +24,52 @@ function FormInputsSection({
   console.log("formFields", formFields);
   const handleInputChange = (id, event) => {
     const { value, type, files } = event.target;
-    const newFields = formFields.map((field) => {
-      if (field.id === id) {
-        if (type === "file") {
-          let file = files[0];
-          let reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = (e) => {
-            const updatedFields = formFields.map((f) => {
-              if (f.id === id) {
-                return {
-                  ...f,
-                  value: {
-                    lastModified: file?.lastModified,
-                    lastModifiedDate: file?.lastModifiedDate,
-                    name: file?.name,
-                    size: file?.size,
-                    type: file?.type,
-                    webkitRelativePath: file?.webkitRelativePath,
-                    content: e.target.result,
-                  },
-                };
-              }
-              return f;
-            });
-            setFormFields(updatedFields);
+
+    if (type === "file") {
+      const fileList = Array.from(files);
+      const readFiles = [];
+
+      fileList.forEach((file) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          readFiles.push({
+            id: uuidv4(),
+            lastModified: file?.lastModified,
+            lastModifiedDate: file?.lastModifiedDate,
+            name: file?.name,
+            size: file?.size,
+            type: file?.type,
+            webkitRelativePath: file?.webkitRelativePath,
+            content: e.target.result,
+            fileAsBinary: file,
+          });
+          const updatedFields = formFields.map((field) =>
+            field.id === id ? { ...field, value: readFiles } : field
+          );
+          setFormFields(updatedFields);
+        };
+      });
+    } else {
+      const updatedFields = formFields.map((field) => {
+        if (field.id === id) {
+          return {
+            ...field,
+            value,
           };
-        } else {
-          field.value = value;
         }
-      }
-      return field;
-    });
-    setFormFields(newFields);
+        return field;
+      });
+      setFormFields(updatedFields);
+    }
   };
+  // i use usecallback because quilleditor
+  const handleTextEditorChange = useCallback((id, value) => {
+    setFormFields((prevFields) =>
+      prevFields.map((field) => (field.id === id ? { ...field, value } : field))
+    );
+  }, []);
+
   const handleSelectChange = (id, selectedOption, isMulti = false) => {
     const newFields = formFields.map((field) => {
       if (field.id === id) {
@@ -231,24 +247,42 @@ function FormInputsSection({
     }
     setFormFields(newFields);
   };
-  const base64ToBlob = (base64, contentType = "", sliceSize = 512) => {
-    console.log("base64", base64);
-    const byteCharacters = atob(base64);
-    const byteArrays = [];
-    for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-      const slice = byteCharacters.slice(offset, offset + sliceSize);
-      const byteNumbers = new Array(slice.length);
-      for (let i = 0; i < slice.length; i++) {
-        byteNumbers[i] = slice.charCodeAt(i);
+
+  let handleDeleteFileForField = (fieldId, fileId) => {
+    let newFormFields = [...formFields];
+    let updatedFields = newFormFields?.map((item) => {
+      if (item?.id == fieldId) {
+        return {
+          ...item,
+          value: item?.value?.filter((file) => {
+            return file?.id != fileId;
+          }),
+        };
       }
-      const byteArray = new Uint8Array(byteNumbers);
-      byteArrays.push(byteArray);
-    }
-    return new Blob(byteArrays, { type: contentType });
+      return item;
+    });
+    setFormFields(updatedFields);
+    toast.error("تم حذف الملف بنجاح", {
+      position: "bottom-right",
+      autoClose: 5000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+    });
   };
+  let navigate = useNavigate();
   let onSubmit = () => {
-    console.log("data", watch());
     localStorage.setItem("inputs", JSON.stringify(formFields));
+    showAlert(
+      "تمت الإجابه بنجاح وجاري توجيهك لصفحه اجابه الاسئله",
+      "success",
+      () => {
+        navigate("/user-dynamic-form");
+      }
+    );
   };
   const handleRequiredChange = (id, event) => {
     const { checked } = event.target;
@@ -280,6 +314,7 @@ function FormInputsSection({
                           handleInputChange,
                           handlelabelInputChange,
                         }}
+                        readOnly={true}
                       />
                     ) : field?.type == "radio" || field?.type == "checkbox" ? (
                       <>
@@ -295,12 +330,38 @@ function FormInputsSection({
                             handleOptionLabelChangeForRadioAndCheckBoxes,
                             handleOptionChangeForRadioAndCheckBoxes,
                           }}
+                          readOnly={true}
                         />
                       </>
                     ) : field?.type == "textarea" ? (
-                      <></>
+                      <>
+                        <TextAreaInput
+                          {...{
+                            field,
+                            errors,
+                            handleRequiredChange,
+                            handleRemoveField,
+                            handleInputChange,
+                            handlelabelInputChange,
+                          }}
+                          readOnly={true}
+                        />
+                      </>
                     ) : field?.type == "file" ? (
-                      <></>
+                      <>
+                        <FileUploadInput
+                          {...{
+                            field,
+                            errors,
+                            handleRequiredChange,
+                            handleRemoveField,
+                            handleInputChange,
+                            handlelabelInputChange,
+                            handleDeleteFileForField,
+                          }}
+                          readOnly={true}
+                        />
+                      </>
                     ) : field?.type == "select" ? (
                       <>
                         {" "}
@@ -317,6 +378,21 @@ function FormInputsSection({
                             handleSelectChange,
                             handleDetermineSelectionType,
                           }}
+                          readOnly={true}
+                        />
+                      </>
+                    ) : field?.type == "editor" ? (
+                      <>
+                        <EditorInput
+                          {...{
+                            field,
+                            errors,
+                            handleRequiredChange,
+                            handleRemoveField,
+                            handleTextEditorChange,
+                            handlelabelInputChange,
+                          }}
+                          readOnly={true}
                         />
                       </>
                     ) : (

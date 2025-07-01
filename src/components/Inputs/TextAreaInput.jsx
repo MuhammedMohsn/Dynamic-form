@@ -1,20 +1,18 @@
 import React, { useState } from "react";
 import { MdDelete } from "react-icons/md";
-import { FaFont, FaCalendarAlt, FaClock } from "react-icons/fa";
-function SingleInput({
+import { FaListUl } from "react-icons/fa";
+function TextAreaInput({
   field,
   errors,
   handleRequiredChange,
   handleRemoveField,
   handleInputChange,
   handlelabelInputChange,
-  readOnly
+  readOnly,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
-    text: <FaFont className="mx-2 fs-4" />,
-    date: <FaCalendarAlt className="mx-2 fs-4" />,
-    time: <FaClock className="mx-2 fs-4" />,
+    textarea: <FaListUl className="mx-2 fs-4" />,
   };
   return (
     <>
@@ -91,17 +89,18 @@ function SingleInput({
               {" "}
               <h3>{field?.label}</h3>
               <br />
-              <input
+              <textarea
                 type={field?.type}
                 name={`${field?.type}_${field?.id}`}
                 id={field?.id}
                 onChange={(e) => handleInputChange(field.id, e)}
                 value={field?.value}
                 placeholder={`Enter ${field?.label}`}
-                className="form-control w-50"
+                className="form-control w-100"
                 readOnly={readOnly}
                 disabled={readOnly}
-              />
+                rows={5}
+              ></textarea>
               <br />
               {errors[field.id] && (
                 <p style={{ color: "red" }}>{errors[field.id]?.message}</p>
@@ -114,4 +113,4 @@ function SingleInput({
   );
 }
 
-export default SingleInput;
+export default TextAreaInput;

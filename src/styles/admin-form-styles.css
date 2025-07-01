@@ -7,3 +7,20 @@
   border-radius: 50%;
   background-color: grey;
 }
+.file-upload-container{
+  height: 150px;
+  border: 2px dashed gray;
+  width: 90%;
+  border-radius: 10px;
+  background-color: rgba(128, 128, 128, 0.384);
+}
+.file-upload-container:hover{
+  background-color: rgba(128, 128, 128, 0.712);
+}
+.attachment-container{
+  border:2px solid rgb(83, 128, 0);
+  height: 50px;
+  color: rgb(83, 128, 0);
+  border-radius: 7px;
+  width: 90%;
+}
