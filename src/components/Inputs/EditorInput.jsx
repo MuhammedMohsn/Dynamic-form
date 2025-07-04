@@ -9,7 +9,7 @@ function EditorInput({
   handleRemoveField,
   handleTextEditorChange,
   handlelabelInputChange,
-  readOnly,
+  userType,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
@@ -26,69 +26,89 @@ function EditorInput({
           setIsShowDelete(false);
         }}
       >
-        <div className="d-flex align-items-center justify-content-between">
-          <div className="d-flex">
-            {iconMap[field?.type]}
-            <div>{field?.type}</div>
-          </div>
-          {isShowDelete && (
-            <MdDelete
-              className="text-danger cursor-pointer fs-4"
-              onClick={() => {
-                handleRemoveField(field.id);
-              }}
-            />
-          )}
-        </div>
+        {userType == "admin" && (
+          <>
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="d-flex">
+                {iconMap[field?.type]}
+                <div>{field?.type}</div>
+              </div>
+              {isShowDelete && (
+                <MdDelete
+                  className="text-danger cursor-pointer fs-4"
+                  onClick={() => {
+                    handleRemoveField(field.id);
+                  }}
+                />
+              )}
+            </div>
+          </>
+        )}
 
-        <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
-          {" "}
-          <div className="d-flex align-items-center">
-            <label htmlFor={field?.labelId} className="fs-3">
-              Field label
-            </label>
-            <span
-              className="mx-2"
-              style={{
-                color: field.required ? "red" : "gray",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-              onClick={() =>
-                handleRequiredChange(field.id, {
-                  target: { checked: !field.required },
-                })
-              }
-              title={`Click to toggle ${
-                field.required ? "optional" : "required"
-              }`}
-            >
-              *
-            </span>
-          </div>
-          <br />
-          <input
-            type="text"
-            onChange={(e) =>
-              handlelabelInputChange(field.id, field?.labelId, e)
-            }
-            value={field?.label}
-            id={field?.labelId}
-            name={`label_${field?.labelId}`}
-            className="form-control w-25"
-          />
-          <br />
-          {errors[`${field.id}_${field?.labelId}_label`] && (
-            <p style={{ color: "red" }}>
-              {errors[`${field.id}_${field?.labelId}_label`]?.message}
-            </p>
-          )}
-        </div>
+        {userType == "admin" && (
+          <>
+            <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
+              {" "}
+              <div className="d-flex align-items-center">
+                <label htmlFor={field?.labelId} className="fs-3">
+                  Field label
+                </label>
+                <span
+                  className="mx-2"
+                  style={{
+                    color: field.required ? "red" : "gray",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    handleRequiredChange(field.id, {
+                      target: { checked: !field.required },
+                    })
+                  }
+                  title={`Click to toggle ${
+                    field.required ? "optional" : "required"
+                  }`}
+                >
+                  *
+                </span>
+              </div>
+              <br />
+              <input
+                type="text"
+                onChange={(e) =>
+                  handlelabelInputChange(field.id, field?.labelId, e)
+                }
+                value={field?.label}
+                id={field?.labelId}
+                name={`label_${field?.labelId}`}
+                className="form-control w-25"
+              />
+              <br />
+              {errors[`${field.id}_${field?.labelId}_label`] && (
+                <p style={{ color: "red" }}>
+                  {errors[`${field.id}_${field?.labelId}_label`]?.message}
+                </p>
+              )}
+            </div>
+          </>
+        )}
         {field?.label && (
           <>
             <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
               {" "}
-              <h3>{field?.label}</h3>
+              <div className="d-flex">
+                {" "}
+                <h3>{field?.label}</h3>
+                <span
+                  className="mx-2"
+                  style={{
+                    color: field.required ? "red" : "gray",
+                    fontWeight: "bold",
+                  }}
+                >
+                  *
+                </span>
+              </div>
               <br />
               <QuillEditorInput
                 value={field?.value}
@@ -96,7 +116,7 @@ function EditorInput({
                   handleTextEditorChange(field?.id, newValue)
                 }
                 label={field?.label}
-                readOnly={readOnly}
+                readOnly={userType == "admin" ? true : false}
               />
               <br />
               {errors[field.id] && (

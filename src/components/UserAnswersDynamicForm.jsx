@@ -4,6 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
 import FormInputsSection from "./FormInputsSection";
+import { useLocation } from "react-router-dom";
 const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
   let [validationSchema, setValidationSchema] = useState({});
   useEffect(() => {
@@ -86,6 +87,13 @@ const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
   });
   console.log("errors", errors);
   console.log("values", watch());
+  let location = useLocation();
+  let [userType, setUserType] = useState("admin");
+  useEffect(() => {
+    if (location.pathname?.includes("user-dynamic-form")) {
+      setUserType("user");
+    }
+  }, [location.pathname]);
   return (
     <>
       <div className="container">
@@ -103,6 +111,7 @@ const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
             setValue,
             trigger,
             errors,
+            userType
           }}
         />
       </div>

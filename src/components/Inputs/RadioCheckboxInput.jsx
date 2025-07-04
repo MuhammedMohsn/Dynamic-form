@@ -11,7 +11,7 @@ function RadioCheckboxInput({
   handleRemoveCheckboxAndRadioOption,
   handleOptionLabelChangeForRadioAndCheckBoxes,
   handleOptionChangeForRadioAndCheckBoxes,
-  readOnly
+  userType,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
@@ -29,69 +29,89 @@ function RadioCheckboxInput({
           setIsShowDelete(false);
         }}
       >
-        <div className="d-flex align-items-center justify-content-between">
-          <div className="d-flex">
-            {iconMap[field?.type]}
-            <div>{field?.type}</div>
-          </div>
-          {isShowDelete && (
-            <MdDelete
-              className="text-danger cursor-pointer fs-4"
-              onClick={() => {
-                handleRemoveField(field.id);
-              }}
-            />
-          )}
-        </div>
+        {userType == "admin" && (
+          <>
+            <div className="d-flex align-items-center justify-content-between">
+              <div className="d-flex">
+                {iconMap[field?.type]}
+                <div>{field?.type}</div>
+              </div>
+              {isShowDelete && (
+                <MdDelete
+                  className="text-danger cursor-pointer fs-4"
+                  onClick={() => {
+                    handleRemoveField(field.id);
+                  }}
+                />
+              )}
+            </div>
+          </>
+        )}
 
-        <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
-          {" "}
-          <div className="d-flex align-items-center">
-            <label htmlFor={field?.labelId} className="fs-3">
-              Field label
-            </label>
-            <span
-              className="mx-2"
-              style={{
-                color: field.required ? "red" : "gray",
-                fontWeight: "bold",
-                cursor: "pointer",
-              }}
-              onClick={() =>
-                handleRequiredChange(field.id, {
-                  target: { checked: !field.required },
-                })
-              }
-              title={`Click to toggle ${
-                field.required ? "optional" : "required"
-              }`}
-            >
-              *
-            </span>
-          </div>
-          <br />
-          <input
-            type="text"
-            onChange={(e) =>
-              handlelabelInputChange(field.id, field?.labelId, e)
-            }
-            value={field?.label}
-            id={field?.labelId}
-            name={`label_${field?.labelId}`}
-            className="form-control w-50"
-          />
-          <br />
-          {errors[`${field.id}_${field?.labelId}_label`] && (
-            <p style={{ color: "red" }}>
-              {errors[`${field.id}_${field?.labelId}_label`]?.message}
-            </p>
-          )}
-        </div>
+        {userType == "admin" && (
+          <>
+            <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
+              {" "}
+              <div className="d-flex align-items-center">
+                <label htmlFor={field?.labelId} className="fs-3">
+                  Field label
+                </label>
+                <span
+                  className="mx-2"
+                  style={{
+                    color: field.required ? "red" : "gray",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                  }}
+                  onClick={() =>
+                    handleRequiredChange(field.id, {
+                      target: { checked: !field.required },
+                    })
+                  }
+                  title={`Click to toggle ${
+                    field.required ? "optional" : "required"
+                  }`}
+                >
+                  *
+                </span>
+              </div>
+              <br />
+              <input
+                type="text"
+                onChange={(e) =>
+                  handlelabelInputChange(field.id, field?.labelId, e)
+                }
+                value={field?.label}
+                id={field?.labelId}
+                name={`label_${field?.labelId}`}
+                className="form-control w-50"
+              />
+              <br />
+              {errors[`${field.id}_${field?.labelId}_label`] && (
+                <p style={{ color: "red" }}>
+                  {errors[`${field.id}_${field?.labelId}_label`]?.message}
+                </p>
+              )}
+            </div>
+          </>
+        )}
         {field?.label && (
           <>
             <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
               {" "}
-              <h3>{field?.label}</h3>
+              <div className="d-flex">
+                {" "}
+                <h3>{field?.label}</h3>
+                <span
+                  className="mx-2"
+                  style={{
+                    color: field.required ? "red" : "gray",
+                    fontWeight: "bold",
+                  }}
+                >
+                  *
+                </span>
+              </div>
               <br />
               {field?.options?.map((option) => {
                 return (
@@ -103,8 +123,8 @@ function RadioCheckboxInput({
                         type={field?.type}
                         name={`${field?.type}_${field.id}`}
                         id={field?.id}
-                        readOnly={readOnly}
-                         disabled={readOnly}
+                        readOnly={userType == "admin" ? true : false}
+                        disabled={userType == "admin" ? true : false}
                         onChange={(e) =>
                           handleOptionChangeForRadioAndCheckBoxes(
                             field.id,
@@ -116,7 +136,7 @@ function RadioCheckboxInput({
                       />
                       <input
                         type="text"
-                        value={option?.value}
+                        value={option?.label}
                         onChange={(e) =>
                           handleOptionLabelChangeForRadioAndCheckBoxes(
                             field.id,
@@ -127,17 +147,23 @@ function RadioCheckboxInput({
                         id={option?.id}
                         className="form-control mx-2 "
                         placeholder="option label"
+                        readOnly={userType == "user" ? true : false}
+                        disabled={userType == "user" ? true : false}
                       />
-                      <MdDelete
-                        className="text-danger cursor-pointer fs-4"
-                        onClick={() => {
-                          handleRemoveCheckboxAndRadioOption(
-                            field.id,
-                            option.id,
-                            field?.type
-                          );
-                        }}
-                      />
+                      {userType == "admin" && (
+                        <>
+                          <MdDelete
+                            className="text-danger cursor-pointer fs-4"
+                            onClick={() => {
+                              handleRemoveCheckboxAndRadioOption(
+                                field.id,
+                                option.id,
+                                field?.type
+                              );
+                            }}
+                          />
+                        </>
+                      )}
                       <br />
                     </div>
                     {errors[`${field.id}_options_${option.id}_label`] && (
@@ -156,17 +182,22 @@ function RadioCheckboxInput({
                   {errors[`${field.id}_options_count`]?.message}
                 </p>
               )}
-              <div className="d-flex align-items-center justify-content-center w-100 my-3">
-                <button
-                  type="button"
-                  className="border-0 outline-none bg-primary w-25 btn-md p-2"
-                  onClick={() => {
-                    handleAddOption(field);
-                  }}
-                >
-                  + Add Option
-                </button>
-              </div>
+              {userType == "admin" && (
+                <>
+                  {" "}
+                  <div className="d-flex align-items-center justify-content-center w-100 my-3">
+                    <button
+                      type="button"
+                      className="border-0 outline-none bg-primary w-25 btn-md p-2"
+                      onClick={() => {
+                        handleAddOption(field);
+                      }}
+                    >
+                      + Add Option
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </>
         )}

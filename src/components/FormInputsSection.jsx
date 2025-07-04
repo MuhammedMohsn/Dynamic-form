@@ -20,6 +20,7 @@ function FormInputsSection({
   setValue,
   trigger,
   errors,
+  userType,
 }) {
   console.log("formFields", formFields);
   const handleInputChange = (id, event) => {
@@ -276,13 +277,16 @@ function FormInputsSection({
   let navigate = useNavigate();
   let onSubmit = () => {
     localStorage.setItem("inputs", JSON.stringify(formFields));
-    showAlert(
-      "تمت الإجابه بنجاح وجاري توجيهك لصفحه اجابه الاسئله",
-      "success",
-      () => {
-        navigate("/user-dynamic-form");
-      }
-    );
+    if (userType == "user") {
+    } else {
+      showAlert(
+        "تمت الإجابه بنجاح وجاري توجيهك لصفحه اجابه الاسئله",
+        "success",
+        () => {
+          navigate("/user-dynamic-form");
+        }
+      );
+    }
   };
   const handleRequiredChange = (id, event) => {
     const { checked } = event.target;
@@ -313,8 +317,9 @@ function FormInputsSection({
                           handleRemoveField,
                           handleInputChange,
                           handlelabelInputChange,
+                          userType,
                         }}
-                        readOnly={true}
+                        readOnly={userType == "user" ? false : true}
                       />
                     ) : field?.type == "radio" || field?.type == "checkbox" ? (
                       <>
@@ -329,8 +334,8 @@ function FormInputsSection({
                             handleRemoveCheckboxAndRadioOption,
                             handleOptionLabelChangeForRadioAndCheckBoxes,
                             handleOptionChangeForRadioAndCheckBoxes,
+                            userType,
                           }}
-                          readOnly={true}
                         />
                       </>
                     ) : field?.type == "textarea" ? (
@@ -343,8 +348,9 @@ function FormInputsSection({
                             handleRemoveField,
                             handleInputChange,
                             handlelabelInputChange,
+                            userType
                           }}
-                          readOnly={true}
+                          readOnly={userType == "user" ? false : true}
                         />
                       </>
                     ) : field?.type == "file" ? (
@@ -358,6 +364,7 @@ function FormInputsSection({
                             handleInputChange,
                             handlelabelInputChange,
                             handleDeleteFileForField,
+                            userType
                           }}
                           readOnly={true}
                         />
@@ -377,8 +384,9 @@ function FormInputsSection({
                             handleOptionLabelChangeForSelect,
                             handleSelectChange,
                             handleDetermineSelectionType,
+                            userType
                           }}
-                          readOnly={true}
+                          readOnly={userType == "user" ? false : true}
                         />
                       </>
                     ) : field?.type == "editor" ? (
@@ -391,8 +399,9 @@ function FormInputsSection({
                             handleRemoveField,
                             handleTextEditorChange,
                             handlelabelInputChange,
+                            userType
                           }}
-                          readOnly={true}
+                          readOnly={userType == "user" ? false : true}
                         />
                       </>
                     ) : (
@@ -404,7 +413,7 @@ function FormInputsSection({
               <div className="d-flex align-items-center justify-content-center w-100 my-3">
                 <button
                   type="submit"
-                  className="bg-primary outline-none border-0"
+                  className="btn bg-primary outline-none border-0 w-25 p-3"
                 >
                   submit
                 </button>

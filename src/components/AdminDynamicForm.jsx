@@ -4,7 +4,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
-import FormInputsSection from "./FormInputsSection"
+import FormInputsSection from "./FormInputsSection";
+import { useLocation } from "react-router-dom";
 const AdminDynamicForm = ({
   selectedType,
   setSelectedType,
@@ -38,8 +39,8 @@ const AdminDynamicForm = ({
             schema[`${field.id}_value`] = Yup.string()
               .nullable()
               .notRequired()
-              .optional()
-              // .max(50, "Field cannot exceed 50 characters");
+              .optional();
+            // .max(50, "Field cannot exceed 50 characters");
           }
           if (["date", "time"].includes(field.type)) {
             schema[`${field.id}_value`] = Yup.string()
@@ -92,6 +93,7 @@ const AdminDynamicForm = ({
   });
   console.log("errors", errors);
   console.log("values", watch());
+  let [userType, setUserType] = useState("admin");
   return (
     <>
       <div className="container">
@@ -123,6 +125,7 @@ const AdminDynamicForm = ({
             setValue,
             trigger,
             errors,
+            userType
           }}
         />
       </div>
