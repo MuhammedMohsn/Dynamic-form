@@ -1,7 +1,8 @@
-import React, { useRef, useState } from "react";
+import React, { Fragment, useRef, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { FaFileUpload } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
+import Select from "react-select";
 
 function FileUploadInput({
   field,
@@ -12,12 +13,33 @@ function FileUploadInput({
   handlelabelInputChange,
   handleDeleteFileForField,
   userType,
+  handleAllowedExtensionsForFiles,
+  handleMaxAllowedSizeForFiles,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
     file: <FaFileUpload className="mx-2 fs-4" />,
   };
   let inputFileRef = useRef();
+  const fileExtensionOptions = [
+    { value: "pdf", label: "PDF (.pdf)" },
+    { value: "doc", label: "Word Document (.doc)" },
+    { value: "docx", label: "Word Document (.docx)" },
+    { value: "xls", label: "Excel Spreadsheet (.xls)" },
+    { value: "xlsx", label: "Excel Spreadsheet (.xlsx)" },
+    { value: "ppt", label: "PowerPoint (.ppt)" },
+    { value: "pptx", label: "PowerPoint (.pptx)" },
+    { value: "jpg", label: "JPEG Image (.jpg)" },
+    { value: "jpeg", label: "JPEG Image (.jpeg)" },
+    { value: "png", label: "PNG Image (.png)" },
+    { value: "gif", label: "GIF Image (.gif)" },
+    { value: "txt", label: "Text File (.txt)" },
+    { value: "csv", label: "CSV File (.csv)" },
+    { value: "zip", label: "ZIP Archive (.zip)" },
+    { value: "rar", label: "RAR Archive (.rar)" },
+    { value: "mp3", label: "MP3 Audio (.mp3)" },
+    { value: "mp4", label: "MP4 Video (.mp4)" },
+  ];
   return (
     <>
       <div
@@ -100,17 +122,64 @@ function FileUploadInput({
           <>
             <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
               {" "}
-              <div className="d-flex">
-                <h3>{field?.label}</h3>
-                <span
-                  className="mx-2"
-                  style={{
-                    color: field.required ? "red" : "gray",
-                    fontWeight: "bold",
-                  }}
-                >
-                  *
-                </span>
+              <div className="d-flex justify-content-between align-items-center">
+                <div className="d-flex">
+                  <h3>{field?.label}</h3>
+                  <span
+                    className="mx-2"
+                    style={{
+                      color: field.required ? "red" : "gray",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    *
+                  </span>
+                </div>
+                {userType == "admin" && (
+                  <>
+                    <div className="d-flex w-40 justify-content-between align-items-center row">
+                      {" "}
+                      <div className="col-lg-6 col-sm-12">
+                        <label htmlFor={`${field?.id}_allowed_extension`}>
+                          Choose allowed extensions :
+                        </label>
+                        <Select
+                          className="my-1"
+                          options={fileExtensionOptions}
+                          onChange={(selected) => {
+                            handleAllowedExtensionsForFiles(
+                              field?.id,
+                              selected
+                            );
+                          }}
+                          placeholder="Select option"
+                          isClearable={true}
+                          isMulti
+                          id={`${field?.id}_allowed_extension`}
+                        />
+                      </div>
+                      <div className="col-lg-6 col-sm-12">
+                        <label htmlFor={`${field?.id}_allowed_extension`}>
+                          Max size for files in GB :
+                        </label>
+                        <br />
+                        <input
+                          type="number"
+                          onChange={(e) =>
+                            handleMaxAllowedSizeForFiles(
+                              field?.id,
+                              e?.target?.value
+                            )
+                          }
+                          value={field?.maxAllowedSize}
+                          id={`${field?.id}_allowed_max_size`}
+                          name={`${field?.id}_allowed_max_size`}
+                          className="form-control w-100 my-1"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
               <br />
               <div
@@ -121,7 +190,23 @@ function FileUploadInput({
               >
                 <FaFileUpload className="text-muted fs-3" />
                 <span className="text-muted fs-4"> Click to upload</span>
-                <span className="text-muted fs-6">max 10G</span>
+                {field?.allowedExtensions?.length > 0 && (
+                  <>
+                    <span className="text-muted fs-6">
+                      allowed extensions are{" "}
+                      {field?.allowedExtensions
+                        ?.map((extension) => {
+                          return `.${extension?.value}`;
+                        })
+                        ?.join("-")}
+                    </span>
+                  </>
+                )}
+                {field?.maxAllowedSize && (
+                  <span className="text-muted fs-6">
+                    max {field?.maxAllowedSize} GB
+                  </span>
+                )}
               </div>
               <input
                 type={field?.type}
@@ -156,33 +241,37 @@ function FileUploadInput({
               {Array.isArray(field?.value) &&
                 field?.value?.map((file) => {
                   return (
-                    <div
-                      key={file?.id}
-                      className="attachment-container mx-auto px-3 d-flex align-items-center justify-content-between my-3 bg-success-light"
-                    >
-                      <div className="attachment-name-container w-50">
-                        <span>{file?.name}</span>
-                        <span className="mx-2">{file?.size}</span>
+                    <Fragment key={file?.id}>
+                      <div className="attachment-container mx-auto px-3 d-flex align-items-center justify-content-between my-3 bg-success-light">
+                        <div className="attachment-name-container w-50">
+                          <span>{file?.name}</span>
+                          <span className="mx-2">{file?.size}</span>
+                        </div>
+                        <div className="attachment-actions d-flex align-items-center w-25 justify-content-end">
+                          <MdDelete
+                            className="text-danger cursor-pointer fs-4 mx-4"
+                            onClick={() => {
+                              handleDeleteFileForField(field?.id, file?.id);
+                            }}
+                          />
+                          <a
+                            href={
+                              file?.fileAsBinary
+                                ? URL.createObjectURL(file?.fileAsBinary)
+                                : ""
+                            }
+                            download={file?.name}
+                          >
+                            <FaDownload className="text-primary cursor-pointer fs-4" />
+                          </a>
+                        </div>
                       </div>
-                      <div className="attachment-actions d-flex align-items-center w-25 justify-content-end">
-                        <MdDelete
-                          className="text-danger cursor-pointer fs-4 mx-4"
-                          onClick={() => {
-                            handleDeleteFileForField(field?.id, file?.id);
-                          }}
-                        />
-                        <a
-                          href={
-                            file?.fileAsBinary
-                              ? URL.createObjectURL(file?.fileAsBinary)
-                              : ""
-                          }
-                          download={file?.name}
-                        >
-                          <FaDownload className="text-primary cursor-pointer fs-4" />
-                        </a>
-                      </div>
-                    </div>
+                      {errors[`${field.id}_${file?.id}_file_type`] && (
+                        <p style={{ color: "red" }} className="mx-auto w-85">
+                          {errors[`${field.id}_${file?.id}_file_type`]?.message}
+                        </p>
+                      )}
+                    </Fragment>
                   );
                 })}
             </div>

@@ -69,7 +69,12 @@ const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
                 .notRequired()
                 .optional();
             }
-            let maxSize = 10 * 1024 * 1024;
+            let maxSize = +field?.maxAllowedSize * 1024 * 1024;
+            let allowedExtensions =
+              Array.isArray(field?.allowedExtensions) &&
+              field?.allowedExtensions?.map((extension) => {
+                return extension?.value;
+              });
             let fileInputsSize =
               Array.isArray(field?.value) &&
               field?.value
@@ -80,11 +85,31 @@ const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
                   return acc + size;
                 }, 0);
             if (fileInputsSize > maxSize) {
-              console.log("yes");
               schema[`${field.id}_value`] = Yup.string().required(
                 "You are exceed max size"
               );
             }
+            Array.isArray(field?.value) &&
+              field?.value?.forEach((file) => {
+                console.log("allowedExtensions", allowedExtensions);
+                console.log(
+                  "type",
+                  file?.fileAsBinary.name?.split(".")?.slice(-1)[0]
+                );
+                if (
+                  !allowedExtensions?.includes(
+                    file?.fileAsBinary.name?.split(".")?.slice(-1)[0]
+                  )
+                ) {
+                  schema[`${field.id}_${file?.id}_file_type`] =
+                    Yup.string().required("file extension not allowed");
+                } else {
+                  schema[`${field.id}_${file?.id}_file_type`] = Yup.string()
+                    .optional()
+                    .notRequired()
+                    .nullable();
+                }
+              });
           }
 
           return schema;

@@ -86,6 +86,10 @@ function SelectInputSection({
         ...(selectedType == "select" && {
           isMulti: false,
         }),
+        ...(selectedType == "file" && {
+          allowedExtensions: [],
+          maxAllowedSize: 0,
+        }),
         required: false,
       });
       setValue(newId, newId);

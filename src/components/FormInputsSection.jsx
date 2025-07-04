@@ -295,6 +295,28 @@ function FormInputsSection({
     );
     setFormFields(updatedFields);
   };
+  const handleMaxAllowedSizeForFiles = (fieldId, value) => {
+    let newFields = [...formFields];
+    let updatedFields = newFields?.map((field) => {
+      if (field?.id == fieldId) {
+        return { ...field, maxAllowedSize: value };
+      } else {
+        return field;
+      }
+    });
+    setFormFields(updatedFields);
+  };
+  const handleAllowedExtensionsForFiles = (fieldId, value) => {
+    let newFields = [...formFields];
+    let updatedFields = newFields?.map((field) => {
+      if (field?.id == fieldId) {
+        return { ...field, allowedExtensions: value };
+      } else {
+        return field;
+      }
+    });
+    setFormFields(updatedFields);
+  };
   return (
     <>
       <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
@@ -348,7 +370,7 @@ function FormInputsSection({
                             handleRemoveField,
                             handleInputChange,
                             handlelabelInputChange,
-                            userType
+                            userType,
                           }}
                           readOnly={userType == "user" ? false : true}
                         />
@@ -364,7 +386,9 @@ function FormInputsSection({
                             handleInputChange,
                             handlelabelInputChange,
                             handleDeleteFileForField,
-                            userType
+                            userType,
+                            handleAllowedExtensionsForFiles,
+                            handleMaxAllowedSizeForFiles,
                           }}
                           readOnly={true}
                         />
@@ -384,7 +408,7 @@ function FormInputsSection({
                             handleOptionLabelChangeForSelect,
                             handleSelectChange,
                             handleDetermineSelectionType,
-                            userType
+                            userType,
                           }}
                           readOnly={userType == "user" ? false : true}
                         />
@@ -399,7 +423,7 @@ function FormInputsSection({
                             handleRemoveField,
                             handleTextEditorChange,
                             handlelabelInputChange,
-                            userType
+                            userType,
                           }}
                           readOnly={userType == "user" ? false : true}
                         />
