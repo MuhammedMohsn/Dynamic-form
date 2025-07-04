@@ -4,67 +4,89 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { useState, useEffect } from "react";
 import FormInputsSection from "./FormInputsSection";
-import { useLocation } from "react-router-dom";
 const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
   let [validationSchema, setValidationSchema] = useState({});
   useEffect(() => {
     setValidationSchema(
       Yup.object().shape(
         formFields.reduce((schema, field) => {
-          schema[`${field.id}_${field.labelId}`] = Yup.string()
-            .notRequired()
-            .optional()
-            .nullable();
-          if (field.label == "") {
-            schema[`${field.id}_${field.labelId}_label`] = Yup.string()
-              .required("Field is required")
-              .max(50, "Field cannot exceed 50 characters");
-          } else {
-            schema[`${field.id}_${field.labelId}_label`] = Yup.string()
-              .notRequired()
-              .optional()
-              .nullable();
-          }
-          schema[`${field.id}`] = Yup.string()
-            .notRequired()
-            .optional()
-            .nullable();
           if (["text"].includes(field.type)) {
-            schema[`${field.id}_value`] = Yup.string()
-              .nullable()
-              .notRequired()
-              .optional();
-            // .max(50, "Field cannot exceed 50 characters");
-          }
-          if (["date", "time"].includes(field.type)) {
-            schema[`${field.id}_value`] = Yup.string()
-              .nullable()
-              .notRequired()
-              .optional();
-          }
-          if (["select", "checkbox", "radio"].includes(field.type)) {
-            if (field.options.length < 2) {
-              schema[`${field.id}_options_count`] = Yup.number()
-                .required("You must add more than one option")
-                .min(2, "You must add more than one option");
+            if (field.required && field.value == "") {
+              schema[`${field.id}_value`] = Yup.string()
+                .required("Input field is required")
+                .max(50, "Field cannot exceed 50 characters");
             } else {
-              schema[`${field.id}_options_count`] = Yup.number()
+              schema[`${field.id}_value`] = Yup.string()
+                .nullable()
                 .notRequired()
                 .optional()
-                .nullable();
+                .max(50, "Field cannot exceed 50 characters");
             }
-            field.options?.forEach((option) => {
-              if (option.label == "") {
-                schema[`${field.id}_options_${option.id}_label`] =
-                  Yup.string().required("Option label is required");
-              } else {
-                schema[`${field.id}_options_${option.id}_label`] = Yup.string()
-                  .notRequired()
-                  .optional()
-                  .nullable();
-              }
-            });
           }
+          if (
+            [
+              "date",
+              "time",
+              "radio",
+              "checkbox",
+              "textarea",
+              "editor",
+            ].includes(field.type)
+          ) {
+            if (field?.required && field.value == "") {
+              schema[`${field.id}_value`] = Yup.string().required(
+                "Input field is required"
+              );
+            } else {
+              schema[`${field.id}_value`] = Yup.string()
+                .nullable()
+                .notRequired()
+                .optional();
+            }
+          }
+          if (["select"].includes(field.type)) {
+            if (field?.required) {
+              if (field?.value == "" || field?.value?.length == 0) {
+                schema[`${field.id}_value`] = Yup.string().required(
+                  "Input field is required"
+                );
+              }
+            } else {
+              schema[`${field.id}_value`] = Yup.string()
+                .nullable()
+                .notRequired()
+                .optional();
+            }
+          }
+          if (["file"].includes(field.type)) {
+            if (field?.value?.length == 0 && field?.required) {
+              schema[`${field.id}_value`] = Yup.string().required(
+                "Input field is required"
+              );
+            } else {
+              schema[`${field.id}_value`] = Yup.string()
+                .nullable()
+                .notRequired()
+                .optional();
+            }
+            let maxSize = 10 * 1024 * 1024;
+            let fileInputsSize =
+              Array.isArray(field?.value) &&
+              field?.value
+                ?.map((file) => {
+                  return file?.fileAsBinary?.size;
+                })
+                ?.reduce((acc, size) => {
+                  return acc + size;
+                }, 0);
+            if (fileInputsSize > maxSize) {
+              console.log("yes");
+              schema[`${field.id}_value`] = Yup.string().required(
+                "You are exceed max size"
+              );
+            }
+          }
+
           return schema;
         }, {})
       )
@@ -87,13 +109,7 @@ const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
   });
   console.log("errors", errors);
   console.log("values", watch());
-  let location = useLocation();
-  let [userType, setUserType] = useState("admin");
-  useEffect(() => {
-    if (location.pathname?.includes("user-dynamic-form")) {
-      setUserType("user");
-    }
-  }, [location.pathname]);
+  let [userType, setUserType] = useState("user");
   return (
     <>
       <div className="container">
@@ -111,7 +127,7 @@ const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
             setValue,
             trigger,
             errors,
-            userType
+            userType,
           }}
         />
       </div>

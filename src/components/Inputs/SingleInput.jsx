@@ -126,8 +126,21 @@ function SingleInput({
                 disabled={readOnly}
               />
               <br />
-              {errors[field.id] && (
-                <p style={{ color: "red" }}>{errors[field.id]?.message}</p>
+              {userType == "admin" && (
+                <>
+                  {errors[field.id] && (
+                    <p style={{ color: "red" }}>{errors[field.id]?.message}</p>
+                  )}
+                </>
+              )}
+              {userType == "user" && (
+                <>
+                  {errors[`${field.id}_value`] && (
+                    <p style={{ color: "red" }}>
+                      {errors[`${field.id}_value`]?.message}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </>

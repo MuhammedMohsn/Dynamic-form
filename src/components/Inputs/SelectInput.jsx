@@ -158,7 +158,9 @@ function SelectInput({
               <Select
                 className="my-3"
                 options={selectOptions}
-                onChange={(option) => handleSelectChange(field?.id, option)}
+                onChange={(option) =>
+                  handleSelectChange(field?.id, option, field?.isMulti)
+                }
                 placeholder="Select option"
                 isDisabled={userType == "admin" ? true : false}
                 isClearable={true}
@@ -224,6 +226,15 @@ function SelectInput({
                       + Add Option
                     </button>
                   </div>
+                </>
+              )}
+              {userType == "user" && (
+                <>
+                  {errors[`${field.id}_value`] && (
+                    <p style={{ color: "red" }}>
+                      {errors[`${field.id}_value`]?.message}
+                    </p>
+                  )}
                 </>
               )}
             </div>

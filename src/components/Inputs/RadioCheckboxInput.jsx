@@ -166,21 +166,40 @@ function RadioCheckboxInput({
                       )}
                       <br />
                     </div>
-                    {errors[`${field.id}_options_${option.id}_label`] && (
-                      <p style={{ color: "red" }}>
-                        {
-                          errors[`${field.id}_options_${option.id}_label`]
-                            ?.message
-                        }
-                      </p>
+                    {userType == "admin" && (
+                      <>
+                        {" "}
+                        {errors[`${field.id}_options_${option.id}_label`] && (
+                          <p style={{ color: "red" }}>
+                            {
+                              errors[`${field.id}_options_${option.id}_label`]
+                                ?.message
+                            }
+                          </p>
+                        )}
+                      </>
                     )}
                   </Fragment>
                 );
               })}
-              {errors[`${field.id}_options_count`] && (
-                <p style={{ color: "red" }}>
-                  {errors[`${field.id}_options_count`]?.message}
-                </p>
+              {userType == "admin" && (
+                <>
+                  {" "}
+                  {errors[`${field.id}_options_count`] && (
+                    <p style={{ color: "red" }}>
+                      {errors[`${field.id}_options_count`]?.message}
+                    </p>
+                  )}
+                </>
+              )}
+              {userType == "user" && (
+                <>
+                  {errors[`${field.id}_value`] && (
+                    <p style={{ color: "red" }}>
+                      {errors[`${field.id}_value`]?.message}
+                    </p>
+                  )}
+                </>
               )}
               {userType == "admin" && (
                 <>
