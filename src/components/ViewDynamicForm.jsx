@@ -47,9 +47,7 @@ function ViewDynamicForm({ formFields }) {
                 <input
                   type={field?.type}
                   name={`${field?.type}_${field.id}`}
-                  id={field?.id}
-                  readOnly
-                  disabled
+                  id={option?.id}
                   checked={option?.selected}
                   className="mx-2"
                 />

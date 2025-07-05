@@ -36,24 +36,25 @@
     transform: rotate(360deg);
   }
 }
-.navbar{
-  height:100px;
+.navbar {
+  height: 100px;
   width: 100%;
-  display:flex;
+  display: flex;
   align-items: center;
-  justify-content:space-around;
-  flex-direction:row;
+  justify-content: space-around;
+  flex-direction: row;
   flex-wrap: wrap;
 }
-.navbar_logo{
-font-size:xx-large;
-color:rgb(0, 128, 255);
-font-weight:bolder
+.navbar_logo {
+  font-size: xx-large;
+  color: rgb(0, 128, 255);
+  font-weight: bolder;
 }
-.link,.social{
+.link,
+.social {
   margin-right: 20px;
 }
-.link{
+.link {
   text-decoration: none;
 }
 :root {
@@ -75,9 +76,13 @@ body {
 }
 
 .layout__wrapper {
-  background-image: linear-gradient(0deg, hsl(215, 14%, 16%) 0%, hsl(215, 19%, 29%) 100%);
+  background-image: linear-gradient(
+    0deg,
+    hsl(215, 14%, 16%) 0%,
+    hsl(215, 19%, 29%) 100%
+  );
   border-radius: 3px;
-  box-shadow: 0 12px 16px rgba(0, 0, 0, .25);
+  box-shadow: 0 12px 16px rgba(0, 0, 0, 0.25);
   margin: 3rem auto;
   max-width: 370px;
 }
@@ -110,12 +115,12 @@ body {
   border-radius: var(--border-radius-500);
   cursor: pointer;
   color: hsl(228, 19%, 98%);
-  padding: .66rem 1rem;
+  padding: 0.66rem 1rem;
   /* position: relative; */
 }
 
 .list__item + .list__item {
-  margin-top: .5rem;
+  margin-top: 0.5rem;
 }
 
 .holder {
@@ -129,7 +134,7 @@ body {
   color: #ffffff;
   font-weight: bold;
   margin-bottom: 1rem;
-  padding: .75rem 1rem;
+  padding: 0.75rem 1rem;
 }
 
 .holder--tint-2 .holder__title {
@@ -160,33 +165,38 @@ body {
 .item.dragging {
   background-color: pink;
 }
-.h-fit{
+.h-fit {
   height: fit-content;
 }
-.w-fit{
+.w-fit {
   width: fit-content;
 }
-.cursor-pointer{
+.cursor-pointer {
   cursor: pointer;
 }
-.outline-none{
+.outline-none {
   outline: none;
 }
-.w-30{
+.w-30 {
   width: 30%;
 }
-.w-35{
+.w-35 {
   width: 35%;
 }
-.w-40{
+.w-40 {
   width: 40%;
 }
-.w-45{
+.w-45 {
   width: 45%;
 }
-.w-90{
+.w-90 {
   width: 90%;
 }
-.w-85{
+.w-85 {
   width: 85%;
+}
+input[type="radio"],
+input[type="checkbox"] ,input[type="radio"]:checked,
+input[type="checkbox"]:checked{
+  accent-color: #0d6efd;
 }
