@@ -244,8 +244,6 @@ function RadioCheckboxInput({
                       type={field?.type}
                       name={`${field?.type}_${field.id}`}
                       id={field?.id}
-                      readOnly
-                      disabled
                       onChange={() =>
                         handleOptionChangeForRadioAndCheckBoxes(
                           field.id,

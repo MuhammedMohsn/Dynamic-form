@@ -279,9 +279,16 @@ function FormInputsSection({
   let onSubmit = () => {
     localStorage.setItem("inputs", JSON.stringify(formFields));
     if (userType == "user") {
+      showAlert(
+        " تمت الإجابه بنجاح وجاري توجيهك لصفحه عرض الاسئله",
+        "success",
+        () => {
+          navigate("/view-user-dynamic-form");
+        }
+      );
     } else {
       showAlert(
-        "تمت الإجابه بنجاح وجاري توجيهك لصفحه اجابه الاسئله",
+        "تمت إضافه الاسئله بنجاح وجاري توجيهك لصفحه اجابه الاسئله",
         "success",
         () => {
           navigate("/user-dynamic-form");
