@@ -15,7 +15,6 @@ function SingleInput({
   handleInputChange,
   handlelabelInputChange,
   handleInputDescriptionChange,
-  readOnly,
   userType,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
@@ -148,8 +147,8 @@ function SingleInput({
                 value={field?.value}
                 placeholder={`Enter ${field?.label}`}
                 className="form-control w-50"
-                readOnly={readOnly}
-                disabled={readOnly}
+                readOnly={userType == "admin" ? true : false}
+                disabled={userType == "admin" ? true : false}
               />
               <br />
               {userType == "admin" && (
@@ -168,11 +167,11 @@ function SingleInput({
                   )}
                 </>
               )}
-               {userType=="user" && (
+              {userType == "user" && (
                 <>
-                {field?.description && (
-                  <span className="text-muted">{field?.description}</span>
-                )}
+                  {field?.description && (
+                    <span className="text-muted">{field?.description}</span>
+                  )}
                 </>
               )}
             </div>

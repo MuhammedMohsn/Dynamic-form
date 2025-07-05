@@ -11,6 +11,7 @@ import TextAreaInput from "./Inputs/TextAreaInput";
 import EditorInput from "./Inputs/EditorInput";
 import showAlert from "../functions/showAlert";
 import { useNavigate } from "react-router-dom";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 function FormInputsSection({
   formFields,
   setFormFields,
@@ -328,6 +329,128 @@ function FormInputsSection({
     });
     setFormFields(updatedFields);
   };
+  const renderField = (field) => {
+    if (["text", "date", "time"].includes(field.type)) {
+      return (
+        <SingleInput
+          {...{
+            field,
+            errors,
+            handleRequiredChange,
+            handleRemoveField,
+            handleInputChange,
+            handlelabelInputChange,
+            handleInputDescriptionChange,
+            userType,
+          }}
+        />
+      );
+    } else if (["radio", "checkbox"].includes(field.type)) {
+      return (
+        <RadioCheckboxInput
+          {...{
+            field,
+            errors,
+            handleRequiredChange,
+            handleRemoveField,
+            handlelabelInputChange,
+            handleAddOption,
+            handleRemoveCheckboxAndRadioOption,
+            handleOptionLabelChangeForRadioAndCheckBoxes,
+            handleOptionChangeForRadioAndCheckBoxes,
+            handleInputDescriptionChange,
+            userType,
+          }}
+        />
+      );
+    } else if (field.type === "textarea") {
+      return (
+        <TextAreaInput
+          {...{
+            field,
+            errors,
+            handleRequiredChange,
+            handleRemoveField,
+            handleInputChange,
+            handlelabelInputChange,
+            handleInputDescriptionChange,
+            userType,
+          }}
+        />
+      );
+    } else if (field.type === "file") {
+      return (
+        <FileUploadInput
+          {...{
+            field,
+            errors,
+            handleRequiredChange,
+            handleRemoveField,
+            handleInputChange,
+            handlelabelInputChange,
+            handleDeleteFileForField,
+            userType,
+            handleInputDescriptionChange,
+            handleAllowedExtensionsForFiles,
+            handleMaxAllowedSizeForFiles,
+          }}
+        />
+      );
+    } else if (field.type === "select") {
+      return (
+        <SelectInput
+          {...{
+            field,
+            errors,
+            handleRequiredChange,
+            handleRemoveField,
+            handlelabelInputChange,
+            handleAddOption,
+            handleRemoveSelectOption,
+            handleOptionLabelChangeForSelect,
+            handleSelectChange,
+            handleDetermineSelectionType,
+            handleInputDescriptionChange,
+            userType,
+          }}
+        />
+      );
+    } else if (field.type === "editor") {
+      return (
+        <EditorInput
+          {...{
+            field,
+            errors,
+            handleRequiredChange,
+            handleRemoveField,
+            handleTextEditorChange,
+            handlelabelInputChange,
+            handleInputDescriptionChange,
+            userType,
+          }}
+        />
+      );
+    } else {
+      return null;
+    }
+  };
+
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const reorderedFields = reorder(
+      formFields,
+      result.source.index,
+      result.destination.index
+    );
+    setFormFields(reorderedFields);
+  };
   return (
     <>
       <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
@@ -335,126 +458,60 @@ function FormInputsSection({
         {formFields?.length > 0 ? (
           <>
             {" "}
-            <form onSubmit={handleSubmit(onSubmit)}>
-              {formFields?.map((field) => {
-                return (
-                  <Fragment key={field?.id}>
-                    {field?.type == "text" ||
-                    field?.type == "date" ||
-                    field?.type == "time" ? (
-                      <SingleInput
-                        {...{
-                          field,
-                          errors,
-                          handleRequiredChange,
-                          handleRemoveField,
-                          handleInputChange,
-                          handlelabelInputChange,
-                          handleInputDescriptionChange,
-                          userType,
-                        }}
-                      />
-                    ) : field?.type == "radio" || field?.type == "checkbox" ? (
-                      <>
-                        <RadioCheckboxInput
-                          {...{
-                            field,
-                            errors,
-                            handleRequiredChange,
-                            handleRemoveField,
-                            handlelabelInputChange,
-                            handleAddOption,
-                            handleRemoveCheckboxAndRadioOption,
-                            handleOptionLabelChangeForRadioAndCheckBoxes,
-                            handleOptionChangeForRadioAndCheckBoxes,
-                            handleInputDescriptionChange,
-                            userType,
-                          }}
-                        />
-                      </>
-                    ) : field?.type == "textarea" ? (
-                      <>
-                        <TextAreaInput
-                          {...{
-                            field,
-                            errors,
-                            handleRequiredChange,
-                            handleRemoveField,
-                            handleInputChange,
-                            handlelabelInputChange,
-                            handleInputDescriptionChange,
-                            userType,
-                          }}
-                        />
-                      </>
-                    ) : field?.type == "file" ? (
-                      <>
-                        <FileUploadInput
-                          {...{
-                            field,
-                            errors,
-                            handleRequiredChange,
-                            handleRemoveField,
-                            handleInputChange,
-                            handlelabelInputChange,
-                            handleDeleteFileForField,
-                            userType,
-                            handleInputDescriptionChange,
-                            handleAllowedExtensionsForFiles,
-                            handleMaxAllowedSizeForFiles,
-                          }}
-                        />
-                      </>
-                    ) : field?.type == "select" ? (
-                      <>
-                        {" "}
-                        <SelectInput
-                          {...{
-                            field,
-                            errors,
-                            handleRequiredChange,
-                            handleRemoveField,
-                            handlelabelInputChange,
-                            handleAddOption,
-                            handleRemoveSelectOption,
-                            handleOptionLabelChangeForSelect,
-                            handleSelectChange,
-                            handleDetermineSelectionType,
-                            handleInputDescriptionChange,
-                            userType,
-                          }}
-                        />
-                      </>
-                    ) : field?.type == "editor" ? (
-                      <>
-                        <EditorInput
-                          {...{
-                            field,
-                            errors,
-                            handleRequiredChange,
-                            handleRemoveField,
-                            handleTextEditorChange,
-                            handlelabelInputChange,
-                            handleInputDescriptionChange,
-                            userType,
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <></>
-                    )}
-                  </Fragment>
-                );
-              })}
-              <div className="d-flex align-items-center justify-content-center w-100 my-3">
-                <button
-                  type="submit"
-                  className="btn bg-primary outline-none border-0 w-25 p-3"
-                >
-                  submit
-                </button>
-              </div>
-            </form>
+            {userType === "admin" ? (
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="formFields">
+                  {(provided) => (
+                    <form
+                      onSubmit={handleSubmit(onSubmit)}
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                    >
+                      {formFields.map((field, index) => (
+                        <Draggable
+                          key={field.id}
+                          draggableId={field.id.toString()}
+                          index={index}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              {renderField(field)}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                      <div className="d-flex align-items-center justify-content-center w-100 my-3">
+                        <button
+                          type="submit"
+                          className="btn bg-primary outline-none border-0 w-25 p-3"
+                        >
+                          submit
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            ) : (
+              <form onSubmit={handleSubmit(onSubmit)}>
+                {formFields.map((field) => (
+                  <div key={field.id}>{renderField(field)}</div>
+                ))}
+                <div className="d-flex align-items-center justify-content-center w-100 my-3">
+                  <button
+                    type="submit"
+                    className="btn bg-primary outline-none border-0 w-25 p-3"
+                  >
+                    submit
+                  </button>
+                </div>
+              </form>
+            )}
           </>
         ) : (
           <>

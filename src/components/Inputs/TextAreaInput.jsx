@@ -139,8 +139,8 @@ function TextAreaInput({
                 value={field?.value}
                 placeholder={`Enter ${field?.label}`}
                 className="form-control w-100"
-                readOnly={readOnly}
-                disabled={readOnly}
+                readOnly={userType == "admin" ? true : false}
+                disabled={userType == "admin" ? true : false}
                 rows={5}
               ></textarea>
               <br />
