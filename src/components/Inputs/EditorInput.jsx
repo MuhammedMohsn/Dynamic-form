@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
 import QuillEditorInput from "./QuillEditorInput";
+import { FaRegQuestionCircle } from "react-icons/fa";
+
 function EditorInput({
   field,
   errors,
@@ -9,6 +11,7 @@ function EditorInput({
   handleRemoveField,
   handleTextEditorChange,
   handlelabelInputChange,
+  handleInputDescriptionChange,
   userType,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
@@ -89,6 +92,25 @@ function EditorInput({
                   {errors[`${field.id}_${field?.labelId}_label`]?.message}
                 </p>
               )}
+              <div className="d-flex align-items-center">
+                <FaRegQuestionCircle className="fs-4" />
+                <span className="mx-2">Help text</span>
+              </div>
+              <textarea
+                name={`${field?.type}_${field?.id}_description`}
+                id={field?.id + "description"}
+                onChange={(e) =>
+                  handleInputDescriptionChange(field.id, e?.target?.value)
+                }
+                value={field?.description}
+                placeholder={`Add clarification instructions for input`}
+                className="form-control w-100 my-2"
+                rows={5}
+              ></textarea>
+              <span className="text-muted">
+                This text will appear below the field to help users understand
+                what to enter.
+              </span>
             </div>
           </>
         )}
@@ -133,6 +155,13 @@ function EditorInput({
                       {errors[`${field.id}_value`]?.message}
                     </p>
                   )}
+                </>
+              )}
+               {userType=="user" && (
+                <>
+                {field?.description && (
+                  <span className="text-muted">{field?.description}</span>
+                )}
                 </>
               )}
             </div>

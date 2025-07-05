@@ -3,6 +3,7 @@ import { MdDelete } from "react-icons/md";
 import { FaFileUpload } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import Select from "react-select";
+import { FaRegQuestionCircle } from "react-icons/fa";
 
 function FileUploadInput({
   field,
@@ -15,6 +16,7 @@ function FileUploadInput({
   userType,
   handleAllowedExtensionsForFiles,
   handleMaxAllowedSizeForFiles,
+  handleInputDescriptionChange
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
@@ -115,6 +117,25 @@ function FileUploadInput({
                   {errors[`${field.id}_${field?.labelId}_label`]?.message}
                 </p>
               )}
+               <div className="d-flex align-items-center">
+                <FaRegQuestionCircle className="fs-4" />
+                <span className="mx-2">Help text</span>
+              </div>
+              <textarea
+                name={`${field?.type}_${field?.id}_description`}
+                id={field?.id + "description"}
+                onChange={(e) =>
+                  handleInputDescriptionChange(field.id, e?.target?.value)
+                }
+                value={field?.description}
+                placeholder={`Add clarification instructions for input`}
+                className="form-control w-100 my-2"
+                rows={5}
+              ></textarea>
+              <span className="text-muted">
+                This text will appear below the field to help users understand
+                what to enter.
+              </span>
             </div>
           </>
         )}
@@ -274,6 +295,13 @@ function FileUploadInput({
                     </Fragment>
                   );
                 })}
+                 {userType=="user" && (
+                <>
+                {field?.description && (
+                  <span className="text-muted">{field?.description}</span>
+                )}
+                </>
+              )}
             </div>
           </>
         )}

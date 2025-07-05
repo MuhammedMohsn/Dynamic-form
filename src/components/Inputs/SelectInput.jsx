@@ -2,6 +2,7 @@ import React, { Fragment, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import Select from "react-select";
 import { FaCaretDown } from "react-icons/fa";
+import { FaRegQuestionCircle } from "react-icons/fa";
 function SelectInput({
   field,
   errors,
@@ -13,7 +14,7 @@ function SelectInput({
   handleOptionLabelChangeForSelect,
   handleSelectChange,
   handleDetermineSelectionType,
-  readOnly,
+  handleInputDescriptionChange,
   userType,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
@@ -101,6 +102,25 @@ function SelectInput({
                   {errors[`${field.id}_${field?.labelId}_label`]?.message}
                 </p>
               )}
+              <div className="d-flex align-items-center">
+                <FaRegQuestionCircle className="fs-4" />
+                <span className="mx-2">Help text</span>
+              </div>
+              <textarea
+                name={`${field?.type}_${field?.id}_description`}
+                id={field?.id + "description"}
+                onChange={(e) =>
+                  handleInputDescriptionChange(field.id, e?.target?.value)
+                }
+                value={field?.description}
+                placeholder={`Add clarification instructions for input`}
+                className="form-control w-100 my-2"
+                rows={5}
+              ></textarea>
+              <span className="text-muted">
+                This text will appear below the field to help users understand
+                what to enter.
+              </span>
             </div>
           </>
         ) : (
@@ -235,6 +255,13 @@ function SelectInput({
                       {errors[`${field.id}_value`]?.message}
                     </p>
                   )}
+                </>
+              )}
+               {userType=="user" && (
+                <>
+                {field?.description && (
+                  <span className="text-muted">{field?.description}</span>
+                )}
                 </>
               )}
             </div>

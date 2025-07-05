@@ -70,6 +70,7 @@ function SelectInputSection({
         label: "",
         labelId: newLabelId,
         type: selectedType,
+        description:"",
         value: "",
         options:
           selectedType == "checkbox" ||

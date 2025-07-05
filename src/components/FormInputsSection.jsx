@@ -317,6 +317,17 @@ function FormInputsSection({
     });
     setFormFields(updatedFields);
   };
+  let handleInputDescriptionChange = (fieldId, value) => {
+    let newFields = [...formFields];
+    let updatedFields = newFields?.map((field) => {
+      if (field?.id == fieldId) {
+        return { ...field, description: value };
+      } else {
+        return field;
+      }
+    });
+    setFormFields(updatedFields);
+  };
   return (
     <>
       <div className="p-4 border border-2 rounded bg-white mt-3 h-fit">
@@ -339,9 +350,9 @@ function FormInputsSection({
                           handleRemoveField,
                           handleInputChange,
                           handlelabelInputChange,
+                          handleInputDescriptionChange,
                           userType,
                         }}
-                        readOnly={userType == "user" ? false : true}
                       />
                     ) : field?.type == "radio" || field?.type == "checkbox" ? (
                       <>
@@ -356,6 +367,7 @@ function FormInputsSection({
                             handleRemoveCheckboxAndRadioOption,
                             handleOptionLabelChangeForRadioAndCheckBoxes,
                             handleOptionChangeForRadioAndCheckBoxes,
+                            handleInputDescriptionChange,
                             userType,
                           }}
                         />
@@ -370,9 +382,9 @@ function FormInputsSection({
                             handleRemoveField,
                             handleInputChange,
                             handlelabelInputChange,
+                            handleInputDescriptionChange,
                             userType,
                           }}
-                          readOnly={userType == "user" ? false : true}
                         />
                       </>
                     ) : field?.type == "file" ? (
@@ -387,10 +399,10 @@ function FormInputsSection({
                             handlelabelInputChange,
                             handleDeleteFileForField,
                             userType,
+                            handleInputDescriptionChange,
                             handleAllowedExtensionsForFiles,
                             handleMaxAllowedSizeForFiles,
                           }}
-                          readOnly={true}
                         />
                       </>
                     ) : field?.type == "select" ? (
@@ -408,9 +420,9 @@ function FormInputsSection({
                             handleOptionLabelChangeForSelect,
                             handleSelectChange,
                             handleDetermineSelectionType,
+                            handleInputDescriptionChange,
                             userType,
                           }}
-                          readOnly={userType == "user" ? false : true}
                         />
                       </>
                     ) : field?.type == "editor" ? (
@@ -423,9 +435,9 @@ function FormInputsSection({
                             handleRemoveField,
                             handleTextEditorChange,
                             handlelabelInputChange,
+                            handleInputDescriptionChange,
                             userType,
                           }}
-                          readOnly={userType == "user" ? false : true}
                         />
                       </>
                     ) : (
