@@ -202,7 +202,7 @@ function FileUploadInput({
                     </span>
                   </>
                 )}
-                {field?.maxAllowedSize && (
+                {field?.maxAllowedSize>0 && (
                   <span className="text-muted fs-6">
                     max {field?.maxAllowedSize} GB
                   </span>

@@ -91,11 +91,6 @@ const UserAnswersDynamicForm = ({ formFields, setFormFields }) => {
             }
             Array.isArray(field?.value) &&
               field?.value?.forEach((file) => {
-                console.log("allowedExtensions", allowedExtensions);
-                console.log(
-                  "type",
-                  file?.fileAsBinary.name?.split(".")?.slice(-1)[0]
-                );
                 if (
                   !allowedExtensions?.includes(
                     file?.fileAsBinary.name?.split(".")?.slice(-1)[0]
