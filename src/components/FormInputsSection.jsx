@@ -359,6 +359,7 @@ function FormInputsSection({
             handleOptionLabelChangeForRadioAndCheckBoxes,
             handleOptionChangeForRadioAndCheckBoxes,
             handleInputDescriptionChange,
+            handleReorderOptionsForRadioAndCheckboxesAndSelect,
             userType,
           }}
         />
@@ -393,6 +394,7 @@ function FormInputsSection({
             handleInputDescriptionChange,
             handleAllowedExtensionsForFiles,
             handleMaxAllowedSizeForFiles,
+            handleReorderFiles,
           }}
         />
       );
@@ -412,6 +414,7 @@ function FormInputsSection({
             handleDetermineSelectionType,
             handleInputDescriptionChange,
             userType,
+            handleReorderOptionsForRadioAndCheckboxesAndSelect,
           }}
         />
       );
@@ -450,6 +453,25 @@ function FormInputsSection({
       result.destination.index
     );
     setFormFields(reorderedFields);
+  };
+  const handleReorderOptionsForRadioAndCheckboxesAndSelect = (
+    fieldId,
+    reorderedOptions
+  ) => {
+    const newFields = [...formFields];
+    const fieldIndex = newFields.findIndex((f) => f.id === fieldId);
+    if (fieldIndex !== -1) {
+      newFields[fieldIndex].options = reorderedOptions;
+      setFormFields(newFields);
+    }
+  };
+  const handleReorderFiles = (fieldId, reorderedOptions) => {
+    const newFields = [...formFields];
+    const fieldIndex = newFields.findIndex((f) => f.id === fieldId);
+    if (fieldIndex !== -1) {
+      newFields[fieldIndex].value = reorderedOptions;
+      setFormFields(newFields);
+    }
   };
   return (
     <>

@@ -4,6 +4,7 @@ import { FaFileUpload } from "react-icons/fa";
 import { FaDownload } from "react-icons/fa6";
 import Select from "react-select";
 import { FaRegQuestionCircle } from "react-icons/fa";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 function FileUploadInput({
   field,
@@ -16,7 +17,8 @@ function FileUploadInput({
   userType,
   handleAllowedExtensionsForFiles,
   handleMaxAllowedSizeForFiles,
-  handleInputDescriptionChange
+  handleInputDescriptionChange,
+  handleReorderFiles,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
@@ -42,6 +44,22 @@ function FileUploadInput({
     { value: "mp3", label: "MP3 Audio (.mp3)" },
     { value: "mp4", label: "MP4 Video (.mp4)" },
   ];
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const reordered = reorder(
+      field.value,
+      result.source.index,
+      result.destination.index
+    );
+    handleReorderFiles(field.id, reordered);
+  };
   return (
     <>
       <div
@@ -117,7 +135,7 @@ function FileUploadInput({
                   {errors[`${field.id}_${field?.labelId}_label`]?.message}
                 </p>
               )}
-               <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center">
                 <FaRegQuestionCircle className="fs-4" />
                 <span className="mx-2">Help text</span>
               </div>
@@ -223,7 +241,7 @@ function FileUploadInput({
                     </span>
                   </>
                 )}
-                {field?.maxAllowedSize>0 && (
+                {field?.maxAllowedSize > 0 && (
                   <span className="text-muted fs-6">
                     max {field?.maxAllowedSize} GB
                   </span>
@@ -259,47 +277,80 @@ function FileUploadInput({
                   )}
                 </>
               )}
-              {Array.isArray(field?.value) &&
-                field?.value?.map((file) => {
-                  return (
-                    <Fragment key={file?.id}>
-                      <div className="attachment-container mx-auto px-3 d-flex align-items-center justify-content-between my-3 bg-success-light">
-                        <div className="attachment-name-container w-50">
-                          <span>{file?.name}</span>
-                          <span className="mx-2">{file?.size}</span>
-                        </div>
-                        <div className="attachment-actions d-flex align-items-center w-25 justify-content-end">
-                          <MdDelete
-                            className="text-danger cursor-pointer fs-4 mx-4"
-                            onClick={() => {
-                              handleDeleteFileForField(field?.id, file?.id);
-                            }}
-                          />
-                          <a
-                            href={
-                              file?.fileAsBinary
-                                ? URL.createObjectURL(file?.fileAsBinary)
-                                : ""
-                            }
-                            download={file?.name}
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId={`files-droppable-${field.id}`}>
+                  {(provided) => (
+                    <div ref={provided.innerRef} {...provided.droppableProps}>
+                      {Array.isArray(field?.value) &&
+                        field?.value?.map((file, index) => (
+                          <Draggable
+                            draggableId={file.id.toString()}
+                            index={index}
+                            key={file.id}
                           >
-                            <FaDownload className="text-primary cursor-pointer fs-4" />
-                          </a>
-                        </div>
-                      </div>
-                      {errors[`${field.id}_${file?.id}_file_type`] && (
-                        <p style={{ color: "red" }} className="mx-auto w-85">
-                          {errors[`${field.id}_${file?.id}_file_type`]?.message}
-                        </p>
-                      )}
-                    </Fragment>
-                  );
-                })}
-                 {userType=="user" && (
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <div className="attachment-container mx-auto px-3 d-flex align-items-center justify-content-between my-3 bg-success-light">
+                                  <div className="attachment-name-container w-50">
+                                    <span>{file?.name}</span>
+                                    <span className="mx-2">{file?.size}</span>
+                                  </div>
+                                  <div className="attachment-actions d-flex align-items-center w-25 justify-content-end">
+                                    <MdDelete
+                                      className="text-danger cursor-pointer fs-4 mx-4"
+                                      onClick={() =>
+                                        handleDeleteFileForField(
+                                          field?.id,
+                                          file?.id
+                                        )
+                                      }
+                                    />
+                                    <a
+                                      href={
+                                        file?.fileAsBinary
+                                          ? URL.createObjectURL(
+                                              file?.fileAsBinary
+                                            )
+                                          : ""
+                                      }
+                                      download={file?.name}
+                                    >
+                                      <FaDownload className="text-primary cursor-pointer fs-4" />
+                                    </a>
+                                  </div>
+                                </div>
+                                {errors[
+                                  `${field.id}_${file?.id}_file_type`
+                                ] && (
+                                  <p
+                                    style={{ color: "red" }}
+                                    className="mx-auto w-85"
+                                  >
+                                    {
+                                      errors[
+                                        `${field.id}_${file?.id}_file_type`
+                                      ]?.message
+                                    }
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+              {userType == "user" && (
                 <>
-                {field?.description && (
-                  <span className="text-muted">{field?.description}</span>
-                )}
+                  {field?.description && (
+                    <span className="text-muted">{field?.description}</span>
+                  )}
                 </>
               )}
             </div>

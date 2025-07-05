@@ -2,6 +2,7 @@ import React, { Fragment, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { FaDotCircle, FaCheckSquare } from "react-icons/fa";
 import { FaRegQuestionCircle } from "react-icons/fa";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 function RadioCheckboxInput({
   field,
@@ -14,12 +15,29 @@ function RadioCheckboxInput({
   handleOptionLabelChangeForRadioAndCheckBoxes,
   handleOptionChangeForRadioAndCheckBoxes,
   handleInputDescriptionChange,
+  handleReorderOptionsForRadioAndCheckboxesAndSelect,
   userType,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
     radio: <FaDotCircle className="mx-2 fs-4" />,
     checkbox: <FaCheckSquare className="mx-2 fs-4" />,
+  };
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const reordered = reorder(
+      field.options,
+      result.source.index,
+      result.destination.index
+    );
+    handleReorderOptionsForRadioAndCheckboxesAndSelect(field.id, reordered);
   };
   return (
     <>
@@ -135,75 +153,119 @@ function RadioCheckboxInput({
                 </span>
               </div>
               <br />
-              {field?.options?.map((option) => {
-                return (
-                  <Fragment key={option.id}>
-                    {" "}
-                    <div className="d-flex align-items-center my-2">
-                      {" "}
-                      <input
-                        type={field?.type}
-                        name={`${field?.type}_${field.id}`}
-                        id={field?.id}
-                        readOnly={userType == "admin" ? true : false}
-                        disabled={userType == "admin" ? true : false}
-                        onChange={(e) =>
-                          handleOptionChangeForRadioAndCheckBoxes(
-                            field.id,
-                            option.id,
-                            field?.type
-                          )
-                        }
-                        checked={option?.selected}
-                      />
-                      <input
-                        type="text"
-                        value={option?.label}
-                        onChange={(e) =>
-                          handleOptionLabelChangeForRadioAndCheckBoxes(
-                            field.id,
-                            option.id,
-                            e.target.value
-                          )
-                        }
-                        id={option?.id}
-                        className="form-control mx-2 "
-                        placeholder="option label"
-                        readOnly={userType == "user" ? true : false}
-                        disabled={userType == "user" ? true : false}
-                      />
-                      {userType == "admin" && (
-                        <>
-                          <MdDelete
-                            className="text-danger cursor-pointer fs-4"
-                            onClick={() => {
-                              handleRemoveCheckboxAndRadioOption(
-                                field.id,
-                                option.id,
-                                field?.type
-                              );
-                            }}
-                          />
-                        </>
-                      )}
-                      <br />
-                    </div>
-                    {userType == "admin" && (
-                      <>
-                        {" "}
-                        {errors[`${field.id}_options_${option.id}_label`] && (
-                          <p style={{ color: "red" }}>
-                            {
-                              errors[`${field.id}_options_${option.id}_label`]
-                                ?.message
-                            }
-                          </p>
-                        )}
-                      </>
+              {userType === "admin" ? (
+                <DragDropContext onDragEnd={onDragEnd}>
+                  <Droppable droppableId={`droppable-options-${field.id}`}>
+                    {(provided) => (
+                      <div ref={provided.innerRef} {...provided.droppableProps}>
+                        {field?.options?.map((option, index) => (
+                          <Draggable
+                            draggableId={option.id.toString()}
+                            index={index}
+                            key={option.id}
+                          >
+                            {(provided) => (
+                              <div
+                                className="my-2"
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                              >
+                                <div className="d-flex align-items-center my-2">
+                                  {" "}
+                                  <input
+                                    type={field?.type}
+                                    name={`${field?.type}_${field.id}`}
+                                    id={field?.id}
+                                    readOnly
+                                    disabled
+                                    onChange={() =>
+                                      handleOptionChangeForRadioAndCheckBoxes(
+                                        field.id,
+                                        option.id,
+                                        field?.type
+                                      )
+                                    }
+                                    checked={option?.selected}
+                                  />
+                                  <input
+                                    type="text"
+                                    value={option?.label}
+                                    onChange={(e) =>
+                                      handleOptionLabelChangeForRadioAndCheckBoxes(
+                                        field.id,
+                                        option.id,
+                                        e.target.value
+                                      )
+                                    }
+                                    id={option?.id}
+                                    className="form-control mx-2"
+                                    placeholder="option label"
+                                  />
+                                  <MdDelete
+                                    className="text-danger cursor-pointer fs-4"
+                                    onClick={() =>
+                                      handleRemoveCheckboxAndRadioOption(
+                                        field.id,
+                                        option.id,
+                                        field?.type
+                                      )
+                                    }
+                                  />
+                                </div>
+
+                                {errors[
+                                  `${field.id}_options_${option.id}_label`
+                                ] && (
+                                  <p style={{ color: "red" }}>
+                                    {
+                                      errors[
+                                        `${field.id}_options_${option.id}_label`
+                                      ]?.message
+                                    }
+                                  </p>
+                                )}
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
                     )}
-                  </Fragment>
-                );
-              })}
+                  </Droppable>
+                </DragDropContext>
+              ) : (
+                field.options.map((option) => (
+                  <div
+                    className="d-flex align-items-center my-2"
+                    key={option.id}
+                  >
+                    <input
+                      type={field?.type}
+                      name={`${field?.type}_${field.id}`}
+                      id={field?.id}
+                      readOnly
+                      disabled
+                      onChange={() =>
+                        handleOptionChangeForRadioAndCheckBoxes(
+                          field.id,
+                          option.id,
+                          field?.type
+                        )
+                      }
+                      checked={option?.selected}
+                    />
+                    <input
+                      type="text"
+                      value={option?.label}
+                      readOnly
+                      disabled
+                      className="form-control mx-2"
+                      placeholder="option label"
+                    />
+                  </div>
+                ))
+              )}
               {userType == "admin" && (
                 <>
                   {" "}
@@ -239,11 +301,11 @@ function RadioCheckboxInput({
                   </div>
                 </>
               )}
-               {userType=="user" && (
+              {userType == "user" && (
                 <>
-                {field?.description && (
-                  <span className="text-muted">{field?.description}</span>
-                )}
+                  {field?.description && (
+                    <span className="text-muted">{field?.description}</span>
+                  )}
                 </>
               )}
             </div>

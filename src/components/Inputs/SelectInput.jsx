@@ -3,6 +3,8 @@ import { MdDelete } from "react-icons/md";
 import Select from "react-select";
 import { FaCaretDown } from "react-icons/fa";
 import { FaRegQuestionCircle } from "react-icons/fa";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+
 function SelectInput({
   field,
   errors,
@@ -16,6 +18,7 @@ function SelectInput({
   handleDetermineSelectionType,
   handleInputDescriptionChange,
   userType,
+  handleReorderOptionsForRadioAndCheckboxesAndSelect,
 }) {
   let [isShowDelete, setIsShowDelete] = useState(false);
   const iconMap = {
@@ -29,6 +32,22 @@ function SelectInput({
       </div>
     ),
   }));
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
+
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const reordered = reorder(
+      field.options,
+      result.source.index,
+      result.destination.index
+    );
+    handleReorderOptionsForRadioAndCheckboxesAndSelect(field.id, reordered);
+  };
   return (
     <>
       <div
@@ -191,45 +210,72 @@ function SelectInput({
               <br />
               {userType == "admin" && (
                 <>
-                  {field?.options?.map((option, index) => {
-                    return (
-                      <Fragment key={option.id}>
-                        {" "}
-                        <div className="d-flex align-items-center my-2">
-                          {" "}
-                          <input
-                            type="text"
-                            value={option?.value}
-                            onChange={(e) =>
-                              handleOptionLabelChangeForSelect(
-                                field.id,
-                                option.id,
-                                e.target.value,
-                                index
-                              )
-                            }
-                            className="form-control mx-2 "
-                            placeholder="option label"
-                          />
-                          <MdDelete
-                            className="text-danger cursor-pointer fs-4"
-                            onClick={() => {
-                              handleRemoveSelectOption(field.id, option.id);
-                            }}
-                          />
-                          <br />
+                  <DragDropContext onDragEnd={onDragEnd}>
+                    <Droppable droppableId={`droppable-select-${field.id}`}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                        >
+                          {field?.options?.map((option, index) => (
+                            <Draggable
+                              draggableId={option.id.toString()}
+                              index={index}
+                              key={option.id}
+                            >
+                              {(provided) => (
+                                <div
+                                  className="my-2"
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                >
+                                  <div className="d-flex align-items-center ">
+                                    <input
+                                      type="text"
+                                      value={option?.value}
+                                      onChange={(e) =>
+                                        handleOptionLabelChangeForSelect(
+                                          field.id,
+                                          option.id,
+                                          e.target.value,
+                                          index
+                                        )
+                                      }
+                                      className="form-control mx-2 "
+                                      placeholder="option label"
+                                    />
+                                    <MdDelete
+                                      className="text-danger cursor-pointer fs-4"
+                                      onClick={() => {
+                                        handleRemoveSelectOption(
+                                          field.id,
+                                          option.id
+                                        );
+                                      }}
+                                    />
+                                  </div>
+                                  {errors[
+                                    `${field.id}_options_${option.id}_label`
+                                  ] && (
+                                    <p style={{ color: "red" }}>
+                                      {
+                                        errors[
+                                          `${field.id}_options_${option.id}_label`
+                                        ]?.message
+                                      }
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
                         </div>
-                        {errors[`${field.id}_options_${option.id}_label`] && (
-                          <p style={{ color: "red" }}>
-                            {
-                              errors[`${field.id}_options_${option.id}_label`]
-                                ?.message
-                            }
-                          </p>
-                        )}
-                      </Fragment>
-                    );
-                  })}
+                      )}
+                    </Droppable>
+                  </DragDropContext>
+
                   {errors[`${field.id}_options_count`] && (
                     <p style={{ color: "red" }}>
                       {errors[`${field.id}_options_count`]?.message}
@@ -257,11 +303,11 @@ function SelectInput({
                   )}
                 </>
               )}
-               {userType=="user" && (
+              {userType == "user" && (
                 <>
-                {field?.description && (
-                  <span className="text-muted">{field?.description}</span>
-                )}
+                  {field?.description && (
+                    <span className="text-muted">{field?.description}</span>
+                  )}
                 </>
               )}
             </div>
