@@ -10,6 +10,7 @@ function App() {
       <BrowserRouter basename={process.env.PUBLIC_URL}>
         {" "}
         <Routes>
+          
           <Route path="/" element={<Navigate to={"/admin-dynamic-form"} />} />
           <Route path="/admin-dynamic-form" element={<AdminPage />} />
           <Route path="/user-dynamic-form" element={<UserAnswersPage />} />
